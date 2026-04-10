@@ -36,7 +36,7 @@ deploy:
   on:
     tags: true
     distributions: bdist_wheel
-    repo: WesleyPeng/uiXautomation
+    repo: WesleyPeng/agentic-taf
 
 #notifications:
 #  email:
