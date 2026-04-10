@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="Helvetica, Arial, sans-serif" font-size="11">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="104%">
+      <feDropShadow dx="1" dy="1" stdDeviation="1.5" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Layer 1: Test Suites -->
+  <rect x="20" y="10" width="860" height="70" rx="10" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="32" y="28" font-size="12" font-weight="bold" fill="#2E7D32">Test Suites (pytest / behave)</text>
+  <g transform="translate(35, 38)">
+    <rect x="0"   y="0" width="70" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="35"  y="20" text-anchor="middle" font-size="10">API</text>
+    <rect x="80"  y="0" width="70" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="115" y="20" text-anchor="middle" font-size="10">UI</text>
+    <rect x="160" y="0" width="70" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="195" y="20" text-anchor="middle" font-size="10">E2E</text>
+    <rect x="240" y="0" width="70" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="275" y="20" text-anchor="middle" font-size="10">BDD</text>
+    <rect x="320" y="0" width="70" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="355" y="20" text-anchor="middle" font-size="10">AI</text>
+    <rect x="400" y="0" width="76" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="438" y="20" text-anchor="middle" font-size="10">Chaos</text>
+    <rect x="486" y="0" width="70" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="521" y="20" text-anchor="middle" font-size="10">Load</text>
+    <rect x="566" y="0" width="76" height="30" rx="4" fill="#C8E6C9" stroke="#81C784"/>
+    <text x="604" y="20" text-anchor="middle" font-size="10">Security</text>
+  </g>
+
+  <!-- Layer 2: Modeling -->
+  <rect x="20" y="100" width="860" height="70" rx="10" fill="#E3F2FD" stroke="#2196F3" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="32" y="118" font-size="12" font-weight="bold" fill="#1565C0">Modeling Layer</text>
+  <g transform="translate(35, 128)">
+    <rect x="0"   y="0" width="100" height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="50"  y="20" text-anchor="middle" font-size="10">Page Objects</text>
+    <rect x="112" y="0" width="88"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="156" y="20" text-anchor="middle" font-size="10">Browser</text>
+    <rect x="212" y="0" width="96"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="260" y="20" text-anchor="middle" font-size="10">RESTClient</text>
+    <rect x="320" y="0" width="96"  height="30" rx="4" fill="#90CAF9" stroke="#64B5F6"/>
+    <text x="368" y="20" text-anchor="middle" font-size="10">WSClient *</text>
+    <rect x="428" y="0" width="92"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="474" y="20" text-anchor="middle" font-size="10">CLIRunner</text>
+    <rect x="532" y="0" width="100" height="30" rx="4" fill="#90CAF9" stroke="#64B5F6"/>
+    <text x="582" y="20" text-anchor="middle" font-size="10">LLMJudge *</text>
+  </g>
+
+  <!-- Layer 3: Foundation -->
+  <rect x="20" y="190" width="860" height="70" rx="10" fill="#FFEBEE" stroke="#F44336" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="32" y="208" font-size="12" font-weight="bold" fill="#C62828">Foundation Layer</text>
+  <g transform="translate(35, 218)">
+    <rect x="0"   y="0" width="120" height="30" rx="4" fill="#FFCDD2" stroke="#EF9A9A"/>
+    <text x="60"  y="20" text-anchor="middle" font-size="10">ServiceLocator</text>
+    <rect x="135" y="0" width="160" height="30" rx="4" fill="#FFCDD2" stroke="#EF9A9A"/>
+    <text x="215" y="20" text-anchor="middle" font-size="10">Configuration (YAML)</text>
+    <rect x="310" y="0" width="80"  height="30" rx="4" fill="#FFCDD2" stroke="#EF9A9A"/>
+    <text x="350" y="20" text-anchor="middle" font-size="10">Utils</text>
+    <rect x="405" y="0" width="126" height="30" rx="4" fill="#EF9A9A" stroke="#E57373"/>
+    <text x="468" y="20" text-anchor="middle" font-size="10">Chaos Module *</text>
+  </g>
+
+  <!-- Layer 4: Plugin Interfaces -->
+  <rect x="20" y="280" width="860" height="70" rx="10" fill="#FFF3E0" stroke="#FF9800" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="32" y="298" font-size="12" font-weight="bold" fill="#E65100">Plugin Interfaces</text>
+  <g transform="translate(35, 308)">
+    <ellipse cx="50"  cy="15" rx="48" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
+    <text x="50"  y="19" text-anchor="middle" font-size="10">WebPlugin</text>
+    <ellipse cx="158" cy="15" rx="52" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
+    <text x="158" y="19" text-anchor="middle" font-size="10">RESTPlugin</text>
+    <ellipse cx="272" cy="15" rx="52" ry="14" fill="#FFCC80" stroke="#FFA726"/>
+    <text x="272" y="19" text-anchor="middle" font-size="10">WSPlugin *</text>
+    <ellipse cx="382" cy="15" rx="48" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
+    <text x="382" y="19" text-anchor="middle" font-size="10">CLIPlugin</text>
+    <ellipse cx="498" cy="15" rx="56" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
+    <text x="498" y="19" text-anchor="middle" font-size="10">MobilePlugin</text>
+    <ellipse cx="614" cy="15" rx="54" ry="14" fill="#FFCC80" stroke="#FFA726"/>
+    <text x="614" y="19" text-anchor="middle" font-size="10">LLMPlugin *</text>
+  </g>
+
+  <!-- Layer 5: Concrete Implementations -->
+  <rect x="20" y="370" width="860" height="70" rx="10" fill="#F3E5F5" stroke="#9C27B0" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="32" y="388" font-size="12" font-weight="bold" fill="#6A1B9A">Concrete Implementations</text>
+  <g transform="translate(25, 398)">
+    <rect x="0"   y="0" width="88"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="44"  y="20" text-anchor="middle" font-size="10">Playwright *</text>
+    <rect x="98"  y="0" width="80"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="138" y="20" text-anchor="middle" font-size="10">Selenium</text>
+    <rect x="188" y="0" width="72"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="224" y="20" text-anchor="middle" font-size="10">httpx *</text>
+    <rect x="270" y="0" width="76"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="308" y="20" text-anchor="middle" font-size="10">requests</text>
+    <rect x="356" y="0" width="92"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="402" y="20" text-anchor="middle" font-size="10">WebSocket *</text>
+    <rect x="458" y="0" width="80"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="498" y="20" text-anchor="middle" font-size="10">Paramiko</text>
+    <rect x="548" y="0" width="74"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="585" y="20" text-anchor="middle" font-size="10">Appium</text>
+    <rect x="632" y="0" width="96"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="680" y="20" text-anchor="middle" font-size="10">LLM Judge *</text>
+  </g>
+
+  <!-- Down arrows between layers (subtle, centered) -->
+  <g stroke="#BDBDBD" stroke-width="1.2" fill="#BDBDBD" opacity="0.6">
+    <!-- Suites → Modeling -->
+    <line x1="450" y1="80" x2="450" y2="100"/>
+    <polygon points="446,97 450,103 454,97"/>
+    <!-- Modeling → Foundation -->
+    <line x1="450" y1="170" x2="450" y2="190"/>
+    <polygon points="446,187 450,193 454,187"/>
+    <!-- Foundation → Interfaces -->
+    <line x1="450" y1="260" x2="450" y2="280"/>
+    <polygon points="446,277 450,283 454,277"/>
+    <!-- Interfaces → Implementations -->
+    <line x1="450" y1="350" x2="450" y2="370"/>
+    <polygon points="446,367 450,373 454,367"/>
+  </g>
+
+  <!-- Legend -->
+  <rect x="730" y="460" width="148" height="30" rx="6" fill="#FFFDE7" stroke="#FDD835"/>
+  <text x="804" y="480" text-anchor="middle" font-size="9" font-style="italic" fill="#666">* = new in v1.0</text>
+
+  <!-- Title -->
+  <text x="450" y="510" text-anchor="middle" font-size="10" fill="#9E9E9E">Agentic-TAF Multi-Layer Architecture</text>
+</svg>

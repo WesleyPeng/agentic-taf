@@ -1,5 +1,5 @@
 """
-Extensible Test Automation Framework
+Agentic Test Automation Framework
 """
 
 from pybuilder.core import init, use_plugin
@@ -10,8 +10,8 @@ use_plugin('python.unittest')
 # use_plugin('python.integrationtest')
 use_plugin('python.distutils')
 
-name = 'PyXTaf'
-summary = 'Extensible Test Automation Framework'
+name = 'Agentic-TAF'
+summary = 'Agentic Test Automation Framework'
 
 default_task = [
     'clean',
@@ -22,7 +22,7 @@ default_task = [
 
 @init
 def initializer(project):
-    project.version = '0.5.1.0'
+    project.version = '1.0.0'
     project.summary = summary
     project.description = __doc__
 
@@ -30,9 +30,6 @@ def initializer(project):
     project.build_depends_on('wheel')
     project.build_depends_on('pip')
 
-    # project.build_depends_on_requirements(
-    #     'src/main/python/requirements.dev.txt'
-    # )
     project.depends_on_requirements(
         'src/main/python/requirements.txt'
     )
@@ -52,26 +49,6 @@ def initializer(project):
         'unittest_test_method_prefix',
         'test_'
     )
-
-    # integration tests
-    # project.set_property(
-    #     "dir_source_integrationtest_python",
-    #     "src/test/python/bpt"
-    # )
-    # project.set_property(
-    #     "integrationtest_file_glob",
-    #     "test_*"
-    # )
-    #
-    # project.set_property(
-    #     "integrationtest_inherit_environment",
-    #     True
-    # )
-
-    # project.set_property(
-    #     'dir_source_main_python',
-    #     'src/main/python'
-    # )
 
     project.set_property(
         'dir_source_main_scripts',
@@ -105,7 +82,7 @@ def initializer(project):
     )
     project.set_property(
         'distutils_setup_keywords',
-        'Automation Framework'
+        'Agentic Test Automation Framework'
     )
     project.set_property(
         'distutils_classifiers', []
