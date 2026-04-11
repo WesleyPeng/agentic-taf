@@ -40,20 +40,25 @@ Tasks are ordered by dependency. Each task has acceptance criteria and a validat
 
 **Validation**: `flake8 src/ && mypy src/main/python/taf/ --ignore-missing-imports && pytest src/test/python/ut/ -v`
 
-### T.1.3 — New Plugin Interfaces + Implementations
+### T.1.3 — New Plugin Interfaces + Implementations (Done)
 
 | Plugin | Interface | Implementation | Deps |
 |--------|-----------|----------------|------|
-| Web (new default) | `WebPlugin` (existing) | `PlaywrightPlugin` | `playwright` |
-| REST (new default) | `RESTPlugin` (existing) | `HttpxPlugin` (async) | `httpx` |
+| Web (alt) | `WebPlugin` (existing) | `PlaywrightPlugin` | `playwright` |
+| REST (alt) | `RESTPlugin` (existing) | `HttpxRESTPlugin` | `httpx` |
 | WebSocket | `WSPlugin` (new) | `WebSocketPlugin` | `websockets` |
 | LLM Judge | `LLMPlugin` (new) | `LLMJudgePlugin` | `langchain-anthropic` |
 
-For each plugin:
-1. Create interface in `taf/foundation/api/plugins/<name>plugin.py`
-2. Create implementation in `taf/foundation/plugins/<type>/<name>/`
-3. Register in `taf/foundation/conf/config.yml`
-4. Write unit test in `src/test/python/ut/`
+- [x] WSPlugin + LLMPlugin interfaces in `api/plugins/`
+- [x] Base client classes: `api/ws/client.py` (connect/send/receive/close), `api/llm/client.py` (evaluate/score, 5-dimension rubric)
+- [x] HttpxRESTPlugin: `plugins/svc/httpx/` — httpx.Client wrapper, implements full REST interface
+- [x] WebSocketPlugin: `plugins/ws/websocket/` — websockets sync client
+- [x] LLMJudgePlugin: `plugins/llm/judge/` — ChatAnthropic-based scoring with JSON parse
+- [x] PlaywrightPlugin: `plugins/web/playwright/` — browser + 4 controls (Button, Edit, Link, Text) + ElementFinder
+- [x] Modeling wrappers: `modeling/ws/WSClient`, `modeling/llm/LLMJudge`
+- [x] config.yml: websocket + llm entries (enabled: False, defaults unchanged)
+- [x] 47 new unit tests (89 total), all pass
+- [x] mypy clean on 141 source files
 
 **Validation**: `pytest src/test/python/ut/ -v` — all plugin discovery and basic operations pass
 

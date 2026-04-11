@@ -10,8 +10,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .cliplugin import CLIPlugin  # noqa: F401
-from .llmplugin import LLMPlugin  # noqa: F401
-from .restplugin import RESTPlugin  # noqa: F401
-from .webplugin import WebPlugin  # noqa: F401
-from .wsplugin import WSPlugin  # noqa: F401
+from taf.foundation.api.plugins import LLMPlugin
+from taf.foundation.plugins.llm.judge import LLMClient
+
+
+class LLMJudgePlugin(LLMPlugin):
+    @property
+    def client(self):
+        return LLMClient

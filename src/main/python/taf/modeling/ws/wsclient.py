@@ -10,8 +10,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .cliplugin import CLIPlugin  # noqa: F401
-from .llmplugin import LLMPlugin  # noqa: F401
-from .restplugin import RESTPlugin  # noqa: F401
-from .webplugin import WebPlugin  # noqa: F401
-from .wsplugin import WSPlugin  # noqa: F401
+from taf.foundation.api.ws import Client
+
+
+class WSClient(Client):
+    """High-level WebSocket client.
+
+    Usage via ServiceLocator when WSPlugin is enabled in config,
+    or directly for standalone WebSocket testing:
+
+        with WSClient('ws://localhost:8080/ws') as ws:
+            ws.send({'type': 'ping'})
+            response = ws.receive(timeout=5)
+    """
+    pass

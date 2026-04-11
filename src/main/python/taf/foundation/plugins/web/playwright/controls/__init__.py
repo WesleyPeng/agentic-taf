@@ -10,8 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .cliplugin import CLIPlugin  # noqa: F401
-from .llmplugin import LLMPlugin  # noqa: F401
-from .restplugin import RESTPlugin  # noqa: F401
-from .webplugin import WebPlugin  # noqa: F401
-from .wsplugin import WSPlugin  # noqa: F401
+from .button import Button  # noqa: F401
+from .edit import Edit  # noqa: F401
+from .link import Link  # noqa: F401
+from .text import Text  # noqa: F401
