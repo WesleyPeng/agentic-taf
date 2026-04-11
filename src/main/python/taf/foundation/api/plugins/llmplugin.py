@@ -10,8 +10,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .cliplugin import CLIPlugin  # noqa: F401
-from .llmplugin import LLMPlugin  # noqa: F401
-from .restplugin import RESTPlugin  # noqa: F401
-from .webplugin import WebPlugin  # noqa: F401
-from .wsplugin import WSPlugin  # noqa: F401
+from .baseplugin import BasePlugin
+
+
+class LLMPlugin(metaclass=BasePlugin):
+
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def client(self):
+        raise NotImplementedError(
+            'LLM Client'
+        )

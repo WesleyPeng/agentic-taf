@@ -42,19 +42,17 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 
 | Plugin Interface | Implementation | Purpose |
 |------------------|----------------|---------|
-| `WebPlugin` | `SeleniumPlugin` | Browser automation (Chrome/Firefox, headless supported) |
-| `RESTPlugin` | `RequestsPlugin` | REST API testing |
+| `WebPlugin` | `SeleniumPlugin` (default) | Browser automation (Selenium 4, headless) |
+| `WebPlugin` | `PlaywrightPlugin` (optional) | Browser automation (Playwright, headless) |
+| `RESTPlugin` | `RequestsPlugin` (default) | REST API testing (requests) |
+| `RESTPlugin` | `HttpxRESTPlugin` (optional) | REST API testing (httpx) |
+| `WSPlugin` | `WebSocketPlugin` (optional) | WebSocket streaming (websockets) |
 | `CLIPlugin` | `ParamikoPlugin` | SSH / CLI access |
 | `MobilePlugin` | `AppiumPlugin` | Mobile automation |
+| `LLMPlugin` | `LLMJudgePlugin` (optional) | LLM response quality evaluation |
 
-**Planned (T.1.3):**
-
-| Plugin Interface | Implementation | Deps |
-|------------------|----------------|------|
-| `WebPlugin` | `PlaywrightPlugin` (new default) | `playwright` |
-| `RESTPlugin` | `HttpxPlugin` (async) | `httpx` |
-| `WSPlugin` (new) | `WebSocketPlugin` | `websockets` |
-| `LLMPlugin` (new) | `LLMJudgePlugin` | `langchain-anthropic` |
+> **Optional plugins** require their dependency installed (`pip install agentic-taf[playwright]`, etc.)
+> and a config.yml change to enable. Defaults remain Selenium + Requests.
 
 ### Layer Descriptions
 

@@ -36,14 +36,14 @@ Plugin interfaces in `taf/foundation/api/plugins/`:
 
 | Interface | Implementation | Status |
 |-----------|----------------|--------|
-| `WebPlugin` | `SeleniumPlugin` (Selenium 4, headless) | Implemented |
-| `RESTPlugin` | `RequestsPlugin` | Implemented |
+| `WebPlugin` | `SeleniumPlugin` (default, headless) | Implemented |
+| `WebPlugin` | `PlaywrightPlugin` (optional) | Implemented (T.1.3) |
+| `RESTPlugin` | `RequestsPlugin` (default) | Implemented |
+| `RESTPlugin` | `HttpxRESTPlugin` (optional) | Implemented (T.1.3) |
+| `WSPlugin` | `WebSocketPlugin` (optional) | Implemented (T.1.3) |
 | `CLIPlugin` | `ParamikoPlugin` | Implemented |
 | `MobilePlugin` | `AppiumPlugin` | Implemented |
-| `WebPlugin` | `PlaywrightPlugin` | Planned (T.1.3) |
-| `RESTPlugin` | `HttpxPlugin` (async) | Planned (T.1.3) |
-| `WSPlugin` | `WebSocketPlugin` | Planned (T.1.3) |
-| `LLMPlugin` | `LLMJudgePlugin` | Planned (T.1.3) |
+| `LLMPlugin` | `LLMJudgePlugin` (optional) | Implemented (T.1.3) |
 
 ## Build & Test
 

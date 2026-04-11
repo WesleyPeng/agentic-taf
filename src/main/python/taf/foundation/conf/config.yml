@@ -15,3 +15,11 @@ plugins:
         name                : RequestsPlugin
         location            : ../plugins/svc/requests
         enabled             : True
+    websocket:
+        name                : WebSocketPlugin
+        location            : ../plugins/ws/websocket
+        enabled             : False
+    llm:
+        name                : LLMJudgePlugin
+        location            : ../plugins/llm/judge
+        enabled             : False
