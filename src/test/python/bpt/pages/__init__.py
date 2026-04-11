@@ -10,5 +10,5 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .binghomepage import BingHomePage
-from .searchresultspage import SearchResultsPage
+from .binghomepage import BingHomePage  # noqa: F401
+from .searchresultspage import SearchResultsPage  # noqa: F401

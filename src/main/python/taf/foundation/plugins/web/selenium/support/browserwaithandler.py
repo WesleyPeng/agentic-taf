@@ -23,7 +23,7 @@ class BrowserWaitHandler(WaitHandler):
             timeout=None,
             poll_frequency=1.0
     ):
-        super(BrowserWaitHandler, self).__init__(
+        super().__init__(
             handler, timeout
         )
 

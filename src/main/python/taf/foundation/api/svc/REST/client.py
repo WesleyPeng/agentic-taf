@@ -11,25 +11,20 @@
 # GNU Lesser General Public License for more details.
 
 import json
+from urllib.parse import urlparse
 
 from taf.foundation.utils import YAMLData
 
 
-class Client(object):
+class Client:
     def __init__(
             self,
-            base_url,
-            port=None,
-            username=None,
-            password=None,
+            base_url: str,
+            port: int | None = None,
+            username: str | None = None,
+            password: str | None = None,
             **kwargs
     ):
-        import sys
-
-        if sys.version_info.major < 3:
-            from urlparse import urlparse
-        else:
-            from urllib.parse import urlparse
 
         _url = urlparse(base_url)
 
@@ -110,42 +105,29 @@ class Client(object):
         )
 
     @classmethod
-    def decode(cls, json_string):
+    def decode(cls, json_string: str) -> YAMLData | list | dict:
         try:
-            json_string = json.loads(json_string)
+            parsed = json.loads(json_string)
 
-            if isinstance(json_string, dict):
-                _model = YAMLData(
-                    **json_string
-                )
+            if isinstance(parsed, dict):
+                return YAMLData(**parsed)
             else:
-                _model = json_string
+                return parsed
         except (TypeError, ValueError):
-            _model = {}
-
-        return _model
+            return {}
 
     @classmethod
-    def encode(cls, model):
-        def _iter_encode(data):
-            _json = {}
-
+    def encode(cls, model: object) -> str:
+        def _iter_encode(data: object) -> object:
             if isinstance(data, YAMLData):
                 data = vars(data)
 
             if isinstance(data, dict):
-                for key, value in data.items():
-                    _json[key] = _iter_encode(value)
+                return {key: _iter_encode(value) for key, value in data.items()}
             elif isinstance(data, (list, tuple)):
-                _json = [
-                    _iter_encode(item) for item in data
-                ]
+                return [_iter_encode(item) for item in data]
             else:
-                # Arbitrarily raise potential exception
-                # for unknown model
-                _json = data
-
-            return _json
+                return data
 
         return json.dumps(
             _iter_encode(model),

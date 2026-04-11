@@ -27,21 +27,23 @@ Language: Python 3.12+
 
 Four-layer plugin architecture (top to bottom):
 
-1. **Test Suites** (`src/test/python/suites/`) — pytest/behave tests: API, UI, E2E, BDD, AI, Chaos, Load, Security
-2. **Modeling** (`src/main/python/taf/modeling/`) — High-level abstractions: Browser, RESTClient, WSClient, CLIRunner, LLMJudge, Page Objects
-3. **Foundation** (`src/main/python/taf/foundation/`) — ServiceLocator, Configuration (YAML), Utils, Chaos Module
+1. **Test Suites** (`src/test/python/`) — `ut/` (42 unit tests), `bpt/` (BDD/ATDD examples), `suites/` (planned)
+2. **Modeling** (`src/main/python/taf/modeling/`) — Browser, RESTClient, CLIRunner, Page Objects
+3. **Foundation** (`src/main/python/taf/foundation/`) — ServiceLocator, Configuration (YAML), Utils
 4. **Plugins** (`src/main/python/taf/foundation/plugins/`) — Concrete implementations discovered at runtime via ServiceLocator
 
 Plugin interfaces in `taf/foundation/api/plugins/`:
 
-| Interface | Implementations | Purpose |
-|-----------|----------------|---------|
-| `WebPlugin` | PlaywrightPlugin, SeleniumPlugin | Browser automation |
-| `RESTPlugin` | HttpxPlugin, RequestsPlugin | REST API testing |
-| `WSPlugin` | WebSocketPlugin | WebSocket streaming |
-| `CLIPlugin` | ParamikoPlugin | SSH/CLI access |
-| `MobilePlugin` | AppiumPlugin | Mobile automation |
-| `LLMPlugin` | LLMJudgePlugin | LLM response quality scoring |
+| Interface | Implementation | Status |
+|-----------|----------------|--------|
+| `WebPlugin` | `SeleniumPlugin` (Selenium 4, headless) | Implemented |
+| `RESTPlugin` | `RequestsPlugin` | Implemented |
+| `CLIPlugin` | `ParamikoPlugin` | Implemented |
+| `MobilePlugin` | `AppiumPlugin` | Implemented |
+| `WebPlugin` | `PlaywrightPlugin` | Planned (T.1.3) |
+| `RESTPlugin` | `HttpxPlugin` (async) | Planned (T.1.3) |
+| `WSPlugin` | `WebSocketPlugin` | Planned (T.1.3) |
+| `LLMPlugin` | `LLMJudgePlugin` | Planned (T.1.3) |
 
 ## Build & Test
 
@@ -52,19 +54,8 @@ flake8 src/main/python/ src/test/python/ --max-line-length=120
 # Type check
 mypy src/main/python/taf/ --ignore-missing-imports
 
-# Framework unit tests
-pytest src/test/python/ut/ -v
-
-# Agentic platform test suites (requires preprod cluster access)
-pytest src/test/python/suites/agentic/api/ -v
-pytest src/test/python/suites/agentic/ui/ -v --headless
-pytest src/test/python/suites/agentic/ai/ -v
-
-# BDD scenarios
-behave src/test/python/suites/agentic/bdd/features/
-
-# All tests
-pytest src/test/python/ -v --ignore=src/test/python/suites/agentic/chaos/ --ignore=src/test/python/suites/agentic/load/
+# Framework unit tests (42 tests, all pass)
+PYTHONPATH=src/main/python pytest src/test/python/ut/ -v
 ```
 
 ## Conventions
@@ -73,9 +64,7 @@ pytest src/test/python/ -v --ignore=src/test/python/suites/agentic/chaos/ --igno
 - **Plugins**: One plugin class per file. File named `<name>plugin.py` (e.g., `playwrightplugin.py`).
 - **Plugin interfaces**: Abstract base in `taf/foundation/api/plugins/`. Concrete in `taf/foundation/plugins/<type>/<name>/`.
 - **Modeling**: High-level wrappers in `taf/modeling/<type>/`. Must use ServiceLocator to resolve plugins, never import concrete plugins directly.
-- **Test suites**: Under `src/test/python/suites/<project>/`. Each suite type in its own subdirectory (api/, ui/, ai/, etc.).
-- **Page Objects**: Under `suites/<project>/ui/pages/`. One class per page. Use modeling layer controls, not raw Playwright/Selenium.
-- **Config**: YAML files in `taf/foundation/conf/` (framework) and `suites/<project>/config/` (project-specific). Environment variables override YAML values.
+- **Config**: YAML files in `taf/foundation/conf/` (framework). Environment variables override YAML values (`TAF_PLUGIN_<NAME>_<KEY>`).
 - **Commits**: `<scope>: <description>` — scopes: framework, plugin, modeling, test, ci, docs.
 - **Copyright**: `Copyright (c) 2017-2026 Wesley Peng` — LGPL-3.0 license.
 - **No secrets**: Never hardcode credentials, IPs, or tokens. Use config files or env vars.
@@ -101,18 +90,10 @@ client = ServiceLocator.get_client(RESTPlugin)
 4. Add modeling wrapper in `taf/modeling/<type>/` if needed
 5. Write unit test in `src/test/python/ut/`
 
-### Adding a test suite
-
-1. Create directory under `src/test/python/suites/<project>/<type>/`
-2. Add `conftest.py` with fixtures using the modeling layer
-3. Write tests using pytest conventions
-4. Add config in `suites/<project>/config/<env>.yml`
-
 ## Pitfalls
 
 - **Never import concrete plugins in test code** — always go through ServiceLocator or modeling layer. Direct imports break plugin swappability.
-- **Python 2 code still exists** — the framework was originally Py2/3 compatible. Modernization will remove Py2 patterns. Until then, some files use `super(ClassName, self).__init__()` and `__metaclass__`.
 - **ServiceLocator is a singleton** — plugin resolution happens once per type. Configuration must be set before first access.
 - **config.yml `location` is relative** — plugin paths are relative to `taf/foundation/conf/`. Use `../plugins/...` pattern.
-- **Existing Selenium plugin has a bundled ChromeDriver binary** — do not commit browser binaries. Playwright manages its own browsers.
+- **Selenium 4 API** — use `find_elements(By.ID, value)` not deprecated `find_elements_by_id()`. Use `Service` and `Options`, not `executable_path` or `desired_capabilities`.
 - **BDD tests use behave, not pytest-bdd** — existing examples in `src/test/python/bpt/bdd/` use behave with Gherkin.

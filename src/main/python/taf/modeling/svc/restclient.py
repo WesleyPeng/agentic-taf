@@ -16,7 +16,7 @@ from taf.foundation.api.svc.REST import Client
 
 
 class RESTClient(
-    ServiceLocator.get_client(
+    ServiceLocator.get_client(  # type: ignore[misc]
         RESTPlugin
     ),
     Client

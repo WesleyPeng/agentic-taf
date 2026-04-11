@@ -10,4 +10,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .restclient import RESTClient
+from .restclient import RESTClient  # noqa: F401

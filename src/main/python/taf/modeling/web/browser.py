@@ -15,7 +15,7 @@ from taf.foundation.api.ui.web import Browser as IBrowser
 
 
 class Browser(
-    ServiceLocator.get_app_under_test(),
+    ServiceLocator.get_app_under_test(),  # type: ignore[misc]
     IBrowser  # for IDE intellisense only
 ):
     pass

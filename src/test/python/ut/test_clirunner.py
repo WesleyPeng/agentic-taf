@@ -10,25 +10,22 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
+import getpass
 from unittest import TestCase
-from unittest import skip
 
 from taf.foundation.plugins.cli.paramiko import SSHClient
 from taf.modeling.cli import CLIRunner
 
 
-@skip('Temporarily ignore CLI tests')
 class TestCLIRunner(TestCase):
     def setUp(self):
         self.hostname = 'localhost'
-        self.username = 'username'
-        self.password = 'password'
+        self.username = getpass.getuser()
 
     def test_run_command(self):
         with CLIRunner(
             hostname=self.hostname,
             username=self.username,
-            password=self.password
         ) as runner:
             self.assertIsInstance(
                 runner,

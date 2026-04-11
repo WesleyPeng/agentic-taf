@@ -10,4 +10,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from taf.foundation.plugins.svc.requests.restclient import RESTClient
+from taf.foundation.plugins.svc.requests.restclient import RESTClient  # noqa: F401

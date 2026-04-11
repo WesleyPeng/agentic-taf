@@ -21,15 +21,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 mypy types-PyYAML types-paramiko types-requests
-          pip install -r src/main/python/requirements.txt
+          pip install -r src/main/python/requirements-dev.txt
 
       - name: flake8
         run: flake8 src/main/python/ src/test/python/ --max-line-length=120 --count --show-source --statistics
 
       - name: mypy
         run: mypy src/main/python/taf/ --ignore-missing-imports
-        continue-on-error: true  # Remove after T.1.2 adds type hints
 
   test:
     name: Unit Tests
@@ -45,21 +43,25 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r src/main/python/requirements.txt
-          pip install pytest pytest-cov
+          pip install -r src/main/python/requirements-dev.txt
+
+      - name: Set up SSH for CLI tests
+        run: |
+          sudo systemctl start ssh || sudo systemctl start sshd || true
+          ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
+          cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+          chmod 600 ~/.ssh/authorized_keys
+          ssh-keyscan -H localhost >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -o BatchMode=yes localhost whoami
 
       - name: Run unit tests
         run: |
-          cd src/main/python && pip install -e . 2>/dev/null || true
-          cd $GITHUB_WORKSPACE
           PYTHONPATH=src/main/python pytest src/test/python/ut/ -v --tb=short
-        continue-on-error: true  # Remove after T.1.2 fixes Py2 compat issues
 
   build:
     name: Build Wheel
     runs-on: ubuntu-latest
     needs: test
-    if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -68,13 +70,14 @@ jobs:
           python-version: '3.12'
 
       - name: Install build tools
-        run: pip install setuptools wheel
+        run: pip install build
 
       - name: Build wheel
-        run: cd src/main/python && python setup.py bdist_wheel
+        run: python -m build --wheel --outdir dist/
 
       - name: Upload artifact
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@v4
         with:
           name: wheel
-          path: src/main/python/dist/*.whl
+          path: dist/*.whl

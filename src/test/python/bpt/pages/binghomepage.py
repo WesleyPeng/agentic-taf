@@ -18,7 +18,7 @@ from .searchresultspage import SearchResultsPage
 
 class BingHomePage(BasePage):
     def __init__(self, url=None, *elements, **conditions):
-        super(BingHomePage, self).__init__(
+        super().__init__(
             url, *elements, **conditions
         )
 

@@ -19,7 +19,7 @@ from .page import Page
 
 class WebElement(UIElement):
     def __init__(self, *elements, **conditions):
-        super(WebElement, self).__init__(
+        super().__init__(
             *elements, **conditions
         )
 

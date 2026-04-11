@@ -13,7 +13,7 @@
 from functools import reduce
 
 
-class ElementFinder(object):
+class ElementFinder:
     def __init__(self, anchor):
         self.anchor = anchor
 
@@ -33,11 +33,11 @@ class ElementFinder(object):
     ):
         try:
             index = int(constraints.pop('index'))
-        except:
+        except Exception:
             index = 0
 
         try:
-            elements = []
+            elements: list = []
 
             conditions = {
                 locator: value
@@ -56,7 +56,7 @@ class ElementFinder(object):
                         **conditions
                     )
                 )
-        except:
+        except Exception:
             pass
         else:
             if elements and (index < len(elements)):
@@ -76,7 +76,7 @@ class ElementFinder(object):
         if finder and callable(finder):
             try:
                 elements += finder(value)
-            except:
+            except Exception:
                 pass
 
         return elements
@@ -92,7 +92,7 @@ class ElementFinder(object):
                     attr_value = self.get_element_attribute(
                         element, key
                     )
-                except:
+                except Exception:
                     pass  # TBH
                 else:
                     if attr_value and value and str(

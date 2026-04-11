@@ -13,11 +13,10 @@
 from .baseplugin import BasePlugin
 
 
-class CLIPlugin(object):
-    __metaclass__ = BasePlugin
+class CLIPlugin(metaclass=BasePlugin):
 
     def __init__(self):
-        super(CLIPlugin, self).__init__()
+        super().__init__()
 
     @property
     def client(self):

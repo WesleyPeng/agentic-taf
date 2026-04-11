@@ -10,5 +10,5 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .aut import AUT
-from .uielement import UIElement
+from .aut import AUT  # noqa: F401
+from .uielement import UIElement  # noqa: F401

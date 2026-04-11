@@ -10,25 +10,34 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
+from selenium.webdriver.common.by import By
+
 from taf.foundation.api.ui.support import ElementFinder as IElementFinder
 from taf.foundation.plugins.web.selenium.support.locator import Locator
 
 
+# Mapping from Locator enum values to Selenium By strategies
+_LOCATOR_TO_BY = {
+    Locator.ID: By.ID,
+    Locator.XPATH: By.XPATH,
+    Locator.NAME: By.NAME,
+    Locator.TAG: By.TAG_NAME,
+    Locator.CSS: By.CSS_SELECTOR,
+    Locator.CLASSNAME: By.CLASS_NAME,
+    Locator.TEXT: By.LINK_TEXT,
+    Locator.TEXT_CONTAINS: By.PARTIAL_LINK_TEXT,
+}
+
+
 class ElementFinder(IElementFinder):
     def __init__(self, anchor):
-        super(ElementFinder, self).__init__(anchor)
+        super().__init__(anchor)
 
     @property
     def elements_finding_strategies(self):
+        # Retained for interface compatibility; not used by find_elements
         return {
-            Locator.ID: 'find_elements_by_id',
-            Locator.XPATH: 'find_elements_by_xpath',
-            Locator.NAME: 'find_elements_by_name',
-            Locator.TAG: 'find_elements_by_tag_name',
-            Locator.CSS: 'find_elements_by_css_selector',
-            Locator.CLASSNAME: 'find_elements_by_class_name',
-            Locator.TEXT: 'find_elements_by_link_text',
-            Locator.TEXT_CONTAINS: 'find_elements_by_partial_link_text'
+            locator: by for locator, by in _LOCATOR_TO_BY.items()
         }
 
     @property
@@ -36,8 +45,11 @@ class ElementFinder(IElementFinder):
         return Locator.XPATH, Locator.CSS
 
     def find_elements(self, locator, value):
-        return super(
-            ElementFinder, self
-        ).find_elements(
-            locator, value
-        )
+        by = _LOCATOR_TO_BY.get(locator)
+        if by is None:
+            return []
+
+        try:
+            return self.anchor.find_elements(by, value)
+        except Exception:
+            return []

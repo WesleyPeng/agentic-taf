@@ -10,4 +10,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from taf.foundation.plugins.cli.paramiko.sshclient import SSHClient
+from taf.foundation.plugins.cli.paramiko.sshclient import SSHClient  # noqa: F401

@@ -35,7 +35,7 @@ def find_packages(where='.', exclude=()):
 
 
 try:
-    from setuptools import setup, find_packages
+    from setuptools import setup, find_packages  # noqa: F811
 except ImportError:
     from distutils.core import setup
 

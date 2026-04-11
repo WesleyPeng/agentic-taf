@@ -13,11 +13,10 @@
 from .baseplugin import BasePlugin
 
 
-class RESTPlugin(object):
-    __metaclass__ = BasePlugin
+class RESTPlugin(metaclass=BasePlugin):
 
     def __init__(self):
-        super(RESTPlugin, self).__init__()
+        super().__init__()
 
     @property
     def client(self):

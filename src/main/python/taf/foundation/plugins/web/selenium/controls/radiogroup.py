@@ -77,7 +77,7 @@ class RadioGroup(WebElement, IRadioGroup):
         if not self._children:
             if self.exists():
                 _finder = ElementFinder(self.object).find_elements
-                self._children = [
+                self._children = [  # type: ignore[assignment]
                     RadioButton(
                         ListItem(element=option, parent=self),
                         Edit(element=label, parent=self)

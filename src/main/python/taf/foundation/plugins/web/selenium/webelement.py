@@ -24,7 +24,7 @@ class WebElement(IWebElement):
     def __init__(
             self, *elements, **conditions
     ):
-        super(WebElement, self).__init__(
+        super().__init__(
             *elements, **conditions
         )
 
@@ -41,12 +41,12 @@ class WebElement(IWebElement):
             ElementWaitHandler(
                 self.root.cache.current, timeout
             ).wait()
-        except:
+        except Exception:
             pass
         finally:
             try:
                 _visible = self.current.is_displayed()
-            except:
+            except Exception:
                 _visible = False
 
         return _visible
@@ -79,7 +79,7 @@ class WebElement(IWebElement):
                     None
             ) in ('iframe', 'frame'):
                 anchor = self.root.cache.current
-        except:
+        except Exception:
             anchor = self.root.cache.current
 
         return anchor

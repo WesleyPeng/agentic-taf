@@ -43,7 +43,7 @@ class SSHClient(
                 )
             )
 
-        std_console = ('',)
+        std_console: tuple[str, ...] = ('',)
         std_in, std_out, std_err = (None, None, None)
 
         try:
@@ -52,9 +52,12 @@ class SSHClient(
                 timeout=self.params.get('timeout')
             )
 
-            std_console = std_out.read(), std_err.read()
+            std_console = (
+                std_out.read().decode('utf-8', errors='replace'),
+                std_err.read().decode('utf-8', errors='replace'),
+            )
         except (IOError, paramiko.SSHException) as ex:
-            logger.error(ex.message)
+            logger.error(str(ex))
         except Exception:
             raise
         else:

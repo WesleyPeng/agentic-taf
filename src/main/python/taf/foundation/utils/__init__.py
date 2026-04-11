@@ -10,6 +10,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .connectioncache import ConnectionCache
-from .logger import logger
-from .yamldata import YAMLData
+from .connectioncache import ConnectionCache  # noqa: F401
+from .logger import logger  # noqa: F401
+from .yamldata import YAMLData  # noqa: F401

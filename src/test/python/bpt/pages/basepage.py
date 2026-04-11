@@ -15,7 +15,7 @@ from taf.foundation.api.ui.web import Page
 
 class BasePage(Page):
     def __init__(self, url=None, *elements, **conditions):
-        super(BasePage, self).__init__(
+        super().__init__(
             *elements, **conditions
         )
 

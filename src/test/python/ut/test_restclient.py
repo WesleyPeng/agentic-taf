@@ -11,6 +11,7 @@
 # GNU Lesser General Public License for more details.
 
 from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
 from taf.foundation.plugins.svc.requests \
     import RESTClient as requestsClient
@@ -22,7 +23,13 @@ class TestRESTClient(TestCase):
     def setUp(self):
         self.base_url = 'http://httpbin.org'
 
-    def test_rest_get(self):
+    @patch('requests.Session.get')
+    def test_rest_get(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.ok = True
+        mock_response.content = b'{"origin": "127.0.0.1"}'
+        mock_get.return_value = mock_response
+
         with RESTClient(
                 self.base_url
         ) as client:
@@ -47,7 +54,7 @@ class TestRESTClient(TestCase):
                 hasattr(model, 'origin')
             )
 
-            # self.assertEqual(
-            #     model.origin,
-            #     '137.69.117.208'
-            # )
+            self.assertEqual(
+                model.origin,
+                '127.0.0.1'
+            )

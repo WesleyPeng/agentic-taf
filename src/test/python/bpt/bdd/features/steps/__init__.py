@@ -10,5 +10,5 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from bpt.bdd.features.websvc.features.steps import *
-from bpt.bdd.features.webui.features.steps import *
+from bpt.bdd.features.websvc.features.steps import *  # noqa: F401,F403
+from bpt.bdd.features.webui.features.steps import *  # noqa: F401,F403

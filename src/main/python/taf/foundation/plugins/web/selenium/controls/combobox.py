@@ -81,7 +81,7 @@ class ComboBox(WebElement, IComboBox):
     def options(self):
         if not self._children:
             if self.exists():
-                self._children = [
+                self._children = [  # type: ignore[assignment]
                     ListItem(element=element, parent=self)
                     for element in ElementFinder(
                         self.object

@@ -16,7 +16,7 @@ from .browser import Browser
 
 class Page(UIElement):
     def __init__(self, *elements, **conditions):
-        super(Page, self).__init__(
+        super().__init__(
             *elements, **conditions
         )
 

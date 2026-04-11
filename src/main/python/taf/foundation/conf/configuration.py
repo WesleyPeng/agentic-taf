@@ -11,15 +11,16 @@
 # GNU Lesser General Public License for more details.
 
 import os
+from typing import Any
 
 from taf.foundation.utils import YAMLData
 
 
-class Configuration(object):
-    _instance = None
-    _settings = None
+class Configuration:
+    _instance: 'Configuration | None' = None
+    _settings: YAMLData | None = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         if not Configuration._instance:
             Configuration._settings = YAMLData.load(
                 os.path.join(
@@ -28,18 +29,48 @@ class Configuration(object):
                 )
             )
 
+            self._apply_env_overrides()
             Configuration._instance = self
 
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls) -> 'Configuration':
         if not Configuration._instance:
             Configuration()
 
+        assert Configuration._instance is not None
         return Configuration._instance
 
     @property
-    def plugins(self):
+    def plugins(self) -> Any:
+        assert self._settings is not None
         return self._settings.plugins
 
-    def save_as(self, path):
+    def save_as(self, path: str) -> None:
         self.plugins.dump(path)
+
+    def _apply_env_overrides(self) -> None:
+        """Override plugin config from TAF_PLUGIN_<NAME>_<KEY> env vars.
+
+        Example: TAF_PLUGIN_WEB_ENABLED=false disables the web plugin.
+        """
+        if self._settings is None:
+            return
+
+        prefix = 'TAF_PLUGIN_'
+        for key, value in os.environ.items():
+            if not key.startswith(prefix):
+                continue
+
+            parts = key[len(prefix):].lower().split('_', 1)
+            if len(parts) != 2:
+                continue
+
+            plugin_name, attr_name = parts
+            if hasattr(self._settings, 'plugins'):
+                plugins = vars(self._settings.plugins)
+                if plugin_name in plugins:
+                    plugin_conf = plugins[plugin_name]
+                    parsed_value: str | bool = value
+                    if attr_name == 'enabled':
+                        parsed_value = value.lower() in ('true', '1', 'yes')
+                    setattr(plugin_conf, attr_name, parsed_value)

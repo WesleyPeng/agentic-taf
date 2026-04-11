@@ -10,11 +10,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-import os
-import sys
-
 from selenium import webdriver
 from selenium.webdriver import Remote as RemoteWebDriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
 
 from taf.foundation.api.ui.web import Browser as IBrowser
 from taf.foundation.plugins.web.selenium.support.browserwaithandler import \
@@ -28,44 +29,44 @@ class Browser(IBrowser):
             identifier=None,
             **kwargs
     ):
-        super(Browser, self).__init__(
+        super().__init__(
             name, identifier, **kwargs
         )
 
     @staticmethod
-    def launch(url='about:blank', **kwargs):
+    def launch(url='about:blank', **kwargs):  # type: ignore[override]
         if not Browser.cache:
             Browser(
                 kwargs.get('name'),
                 kwargs.get('identifier')
             )
 
-        Browser.cache.current.get(url)
+        Browser.cache.current.get(url)  # type: ignore[union-attr]
 
         BrowserWaitHandler(
-            Browser.cache.current,
+            Browser.cache.current,  # type: ignore[union-attr]
             kwargs.get('timeout', 30.0)
         ).wait()
 
     def activate(self):
-        super(Browser, self).activate()
+        super().activate()
 
-        self.cache.current.switch_to.window(
-            self.cache.current.current_window_handle
+        self.cache.current.switch_to.window(  # type: ignore[union-attr]
+            self.cache.current.current_window_handle  # type: ignore[union-attr]
         )
 
     def maximize(self):
-        self.cache.current.maximize_window()
+        self.cache.current.maximize_window()  # type: ignore[union-attr]
 
     def sync(self, timeout=30):
         BrowserWaitHandler(
-            self.cache.current,
+            self.cache.current,  # type: ignore[union-attr]
             timeout
         ).wait()
 
     def get_screenshot_data(self):
-        if isinstance(self.cache.current, RemoteWebDriver):
-            return self.cache.current.get_screenshot_as_png()
+        if isinstance(self.cache.current, RemoteWebDriver):  # type: ignore[union-attr]
+            return self.cache.current.get_screenshot_as_png()  # type: ignore[union-attr]
         else:
             raise RuntimeError(
                 "Selenium Web Driver is required"
@@ -81,6 +82,19 @@ class Browser(IBrowser):
         ).lower() not in ('false', 'no')
 
         if is_remote:
+            _browser_name = {
+                'firefox': 'firefox', 'ff': 'firefox',
+                'chrome': 'chrome', 'gc': 'chrome',
+                'googlechrome': 'chrome',
+            }.get(name.lower(), 'firefox')
+
+            options = kwargs.get('options')
+            if options is None:
+                if _browser_name == 'chrome':
+                    options = ChromeOptions()
+                else:
+                    options = FirefoxOptions()
+
             _instance = RemoteWebDriver(
                 command_executor=kwargs.get(
                     'command_executor',
@@ -89,26 +103,7 @@ class Browser(IBrowser):
                         port=kwargs.get('port', 4444)
                     )
                 ),
-                desired_capabilities=kwargs.get(
-                    'desired_capabilities',
-                    {
-                        'browserName': {
-                            'firefox': 'firefox',
-                            'ff': 'firefox',
-                            'chrome': 'chrome',
-                            'gc': 'chrome',
-                            'googlechrome': 'chrome'
-                        }.get(
-                            name.lower(),
-                            'firefox'
-                        ),
-                    }
-                ),
-                browser_profile=kwargs.get('browser_profile'),
-                proxy=kwargs.get('proxy'),
-                keep_alive=kwargs.get('keep_alive', False),
-                file_detector=kwargs.get('file_detector'),
-                options=kwargs.get('options')
+                options=options,
             )
         else:
             _browser_creation_strategies = {
@@ -132,34 +127,43 @@ class Browser(IBrowser):
         return _instance
 
     def _make_firefox(self, **kwargs):
-        return webdriver.Firefox(**kwargs)
+        options = kwargs.pop('options', None)
+        if options is None:
+            options = FirefoxOptions()
+
+        if kwargs.pop('headless', False):
+            options.add_argument('--headless')
+
+        service_kwargs = {}
+        executable_path = kwargs.pop('executable_path', None)
+        if executable_path:
+            service_kwargs['executable_path'] = executable_path
+        service = kwargs.pop('service', FirefoxService(**service_kwargs))
+
+        return webdriver.Firefox(
+            service=service,
+            options=options,
+            **kwargs
+        )
 
     def _make_chrome(self, **kwargs):
-        _driver_dir = os.path.join(
-            os.path.dirname(__file__),
-            'support'
-        )
+        options = kwargs.pop('options', None)
+        if options is None:
+            options = ChromeOptions()
 
-        _default_driver_dir = os.path.join(
-            _driver_dir,
-            'chromedriver.exe'
-        )
+        if kwargs.pop('headless', False):
+            options.add_argument('--headless=new')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
 
-        if sys.platform.startswith('linux'):
-            _default_driver_dir = \
-                '/opt/google/chrome/chromedriver'
-
-        if os.path.exists(_default_driver_dir):
-            _driver_bin_file_path = _default_driver_dir
-        else:
-            _driver_bin_file_path = os.path.join(
-                _driver_dir, 'chromedriver'
-            )
-
-        os.environ['webdriver.chrome.driver'] = \
-            _driver_bin_file_path
+        service_kwargs = {}
+        executable_path = kwargs.pop('executable_path', None)
+        if executable_path:
+            service_kwargs['executable_path'] = executable_path
+        service = kwargs.pop('service', ChromeService(**service_kwargs))
 
         return webdriver.Chrome(
-            _driver_bin_file_path,
+            service=service,
+            options=options,
             **kwargs
         )

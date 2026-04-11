@@ -14,10 +14,13 @@ import uuid
 from collections import OrderedDict
 
 
-class ConnectionCache(object):
-    conns = OrderedDict()
-    current_key = None
-    closed = set()
+from typing import Any
+
+
+class ConnectionCache:
+    conns: OrderedDict[Any, Any] = OrderedDict()
+    current_key: Any = None
+    closed: set[Any] = set()
 
     def __init__(self, identifier=None):
         ConnectionCache.current_key = self._normalize_id(

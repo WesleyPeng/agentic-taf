@@ -13,7 +13,7 @@
 from taf.foundation.utils import ConnectionCache
 
 
-class WaitHandler(object):
+class WaitHandler:
     def __init__(
             self,
             handler=None,

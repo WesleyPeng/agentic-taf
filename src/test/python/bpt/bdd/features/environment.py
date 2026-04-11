@@ -21,7 +21,7 @@ from bpt.bdd.features.webui.features.fixtures import web_browser_fixture
 from taf.modeling.web import Browser
 
 
-class BehavePatch(object):
+class BehavePatch:
     def __init__(self, context, step):
         self.context, self.step = context, step
 
@@ -43,7 +43,7 @@ class BehavePatch(object):
                     body=Browser.current.take_screenshot(),
                     attachment_type=attachment_type.PNG
                 )
-            except:
+            except Exception:
                 raise
 
 

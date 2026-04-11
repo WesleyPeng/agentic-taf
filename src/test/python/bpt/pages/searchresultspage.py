@@ -16,7 +16,7 @@ from .basepage import BasePage
 
 class SearchResultsPage(BasePage):
     def __init__(self, url=None, *elements, **conditions):
-        super(SearchResultsPage, self).__init__(
+        super().__init__(
             url, *elements, **conditions
         )
 
