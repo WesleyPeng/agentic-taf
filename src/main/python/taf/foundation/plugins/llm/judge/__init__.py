@@ -13,5 +13,6 @@
 try:
     from taf.foundation.plugins.llm.judge.llmclient import LLMClient  # noqa: F401
 except ImportError:
-    # langchain-anthropic not installed — plugin will be skipped by ServiceLocator
+    # langchain-openai or langchain-anthropic not installed —
+    # plugin will be skipped by ServiceLocator
     pass

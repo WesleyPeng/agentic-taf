@@ -62,14 +62,19 @@ Tasks are ordered by dependency. Each task has acceptance criteria and a validat
 
 **Validation**: `pytest src/test/python/ut/ -v` — all plugin discovery and basic operations pass
 
-### T.1.4 — Modeling Layer Extensions
+### T.1.4 — Modeling Layer Extensions (Done)
 
-| Model | Location | Wraps |
-|-------|----------|-------|
-| `WSClient` | `taf/modeling/ws/` | `WSPlugin` — async context manager for WebSocket streaming |
-| `LLMJudge` | `taf/modeling/llm/` | `LLMPlugin` — rubric-based scoring with configurable dimensions |
-
-**Validation**: Unit tests for WSClient and LLMJudge pass
+- [x] LLMClient refactored for provider agnosticism:
+  - `provider='openai'` (default): uses `langchain-openai` ChatOpenAI — works with OpenAI, OpenRouter, local LLMs (Ollama, vLLM), SSO endpoints
+  - `provider='anthropic'`: uses `langchain-anthropic` ChatAnthropic
+  - Configurable via `TAF_LLM_PROVIDER` env var, `base_url`, `api_key` kwargs
+  - Lazy imports — only loads the selected provider's SDK
+  - Removed hard `ChatAnthropic` coupling from T.1.3
+- [x] WSClient enhanced: `collect()` (batch receive), `collect_text()` (concatenate stream), `send_and_receive()` (request-response)
+- [x] LLMJudge enhanced: `assert_quality()` with configurable `overall_threshold`, `dimension_thresholds`, `fail_any_below` floor — raises `AssertionError` with details on failure
+- [x] pyproject.toml: `llm` group now uses `langchain-openai` (default); separate `llm-anthropic` and `llm-all` groups
+- [x] 20 new unit tests (109 total); LLM tests cover both OpenAI and Anthropic providers
+- [x] Validation: flake8 0, mypy 0 (141 files), pytest 109 passed
 
 ### T.1.5 — Chaos Module
 

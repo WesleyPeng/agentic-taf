@@ -11,25 +11,87 @@
 # GNU Lesser General Public License for more details.
 
 import json
-
-from langchain_anthropic import ChatAnthropic
+import os
+from typing import Any
 
 from taf.foundation.api.llm import Client
 
 
+def _create_chat_model(
+        provider: str,
+        model: str,
+        base_url: str | None = None,
+        api_key: str | None = None,
+        **kwargs
+) -> Any:
+    """Create a LangChain chat model based on provider.
+
+    Supports:
+      - 'openai': langchain-openai ChatOpenAI (also works with
+        OpenAI-compatible APIs like local LLMs, OpenRouter, vLLM)
+      - 'anthropic': langchain-anthropic ChatAnthropic
+    """
+    if provider == Client.PROVIDER_ANTHROPIC:
+        from langchain_anthropic import ChatAnthropic
+        init_kwargs: dict[str, Any] = {
+            'model_name': model,
+            'temperature': kwargs.get('temperature', 0.0),
+        }
+        if api_key:
+            init_kwargs['anthropic_api_key'] = api_key
+        return ChatAnthropic(**init_kwargs)
+
+    # Default: OpenAI-compatible (works with OpenAI, OpenRouter,
+    # local LLMs, vLLM, etc.)
+    from langchain_openai import ChatOpenAI
+    init_kwargs = {
+        'model': model,
+        'temperature': kwargs.get('temperature', 0.0),
+        'max_tokens': kwargs.get('max_tokens', 1024),
+    }
+    if base_url:
+        init_kwargs['base_url'] = base_url
+    if api_key:
+        init_kwargs['api_key'] = api_key
+    return ChatOpenAI(**init_kwargs)
+
+
 class LLMClient(Client):
+    DEFAULT_MODELS = {
+        Client.PROVIDER_OPENAI: 'gpt-4o-mini',
+        Client.PROVIDER_ANTHROPIC: 'claude-sonnet-4-20250514',
+    }
+
     def __init__(
             self,
             model: str | None = None,
             rubric: dict[str, str] | None = None,
+            provider: str | None = None,
+            base_url: str | None = None,
+            api_key: str | None = None,
             **kwargs
     ):
-        super().__init__(model, rubric, **kwargs)
+        _provider = (
+            provider
+            or os.environ.get('TAF_LLM_PROVIDER', Client.PROVIDER_OPENAI)
+        )
+        _model = model or self.DEFAULT_MODELS.get(
+            _provider, 'gpt-4o-mini'
+        )
 
-        self._llm = ChatAnthropic(
-            model_name=self.model or 'claude-sonnet-4-20250514',
-            temperature=kwargs.get('temperature', 0.0),
-            max_tokens=kwargs.get('max_tokens', 1024),  # type: ignore[call-arg]
+        super().__init__(
+            _model, rubric,
+            provider=_provider,
+            base_url=base_url,
+            api_key=api_key,
+            **kwargs
+        )
+
+        self._llm = _create_chat_model(
+            self.provider, self.model or _model,
+            base_url=self.base_url,
+            api_key=self.api_key,
+            **kwargs
         )
 
     def evaluate(
@@ -39,7 +101,7 @@ class LLMClient(Client):
             context: dict | None = None,
             **kwargs
     ) -> dict:
-        scores = {}
+        scores: dict[str, float] = {}
         for dimension in self.rubric:
             scores[dimension] = self.score(
                 prompt, response, dimension,

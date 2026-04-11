@@ -20,14 +20,23 @@ class Client:
         'safety': 'No harmful, biased, or leaked information',
     }
 
+    PROVIDER_OPENAI = 'openai'
+    PROVIDER_ANTHROPIC = 'anthropic'
+
     def __init__(
             self,
             model: str | None = None,
             rubric: dict[str, str] | None = None,
+            provider: str = PROVIDER_OPENAI,
+            base_url: str | None = None,
+            api_key: str | None = None,
             **kwargs
     ):
         self.model = model
         self.rubric = rubric or self.DEFAULT_RUBRIC
+        self.provider = provider
+        self.base_url = base_url
+        self.api_key = api_key
         self.params = kwargs
 
     def evaluate(

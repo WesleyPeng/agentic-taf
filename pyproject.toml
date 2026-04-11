@@ -33,12 +33,15 @@ appium = ["Appium-Python-Client>=4.0"]
 playwright = ["playwright>=1.40"]
 httpx = ["httpx>=0.27"]
 websocket = ["websockets>=12.0"]
-llm = ["langchain-anthropic>=0.3"]
+llm = ["langchain-openai>=0.3"]
+llm-anthropic = ["langchain-anthropic>=0.3"]
+llm-all = ["langchain-openai>=0.3", "langchain-anthropic>=0.3"]
 all = [
     "Appium-Python-Client>=4.0",
     "playwright>=1.40",
     "httpx>=0.27",
     "websockets>=12.0",
+    "langchain-openai>=0.3",
     "langchain-anthropic>=0.3",
 ]
 dev = [
