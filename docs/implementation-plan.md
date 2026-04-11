@@ -76,18 +76,56 @@ Tasks are ordered by dependency. Each task has acceptance criteria and a validat
 - [x] 20 new unit tests (109 total); LLM tests cover both OpenAI and Anthropic providers
 - [x] Validation: flake8 0, mypy 0 (141 files), pytest 109 passed
 
-### T.1.5 — Chaos Module
+### T.1.5 — Chaos Plugin
 
-| Component | Purpose |
-|-----------|---------|
-| `taf/chaos/k8s_chaos.py` | Pod kill, network partition, resource pressure, DNS failure, Flux suspend |
-| `taf/chaos/experiment_runner.py` | Setup → inject → verify → cleanup lifecycle |
-| `taf/chaos/probes.py` | HTTP health, K8s resource, Prometheus metric probes |
+Follows the same plugin architecture as REST, WebSocket, LLM, etc.
+No standalone `taf/chaos/` module — chaos is a first-class plugin.
 
-Adapted from `atlantic/automation/library/chaos/` — stripped of Robot Framework deps,
-rewritten as pytest-native with `kubernetes` Python client.
+**Plugin interface** (`api/plugins/chaosplugin.py`):
 
-**Validation**: `pytest src/test/python/ut/test_chaos*.py -v`
+```python
+class ChaosPlugin(metaclass=BasePlugin):
+    @property
+    def client(self):
+        """Returns the chaos client class (experiments + probes)."""
+```
+
+**Base client** (`api/chaos/client.py`):
+
+| Method | Purpose |
+|--------|---------|
+| `inject(fault, target, **kwargs)` | Inject a fault (pod_kill, network_partition, resource_pressure, dns_failure, flux_suspend) |
+| `verify(probe, target, **kwargs) -> bool` | Run a resilience probe (http_health, k8s_ready, prometheus_query) |
+| `run_experiment(fault, probe, target, **kwargs) -> dict` | Full lifecycle: inject → wait → verify → cleanup → return result |
+| `cleanup(target, **kwargs)` | Revert injected fault |
+
+**Concrete implementation** (`plugins/chaos/k8s/`):
+
+| File | Purpose |
+|------|---------|
+| `k8schaosplugin.py` | `ChaosPlugin` subclass, returns `K8sChaosClient` |
+| `k8schaosclient.py` | `kubernetes` Python client: pod delete, network policy, resource limits, CoreDNS ConfigMap, Flux suspend |
+| `faults.py` | Fault definitions: `PodKill`, `NetworkPartition`, `ResourcePressure`, `DNSFailure`, `FluxSuspend` |
+| `probes.py` | Probe definitions: `HttpHealthProbe`, `K8sReadyProbe`, `PrometheusProbe` |
+
+**Modeling** (`modeling/chaos/`):
+
+| Class | Purpose |
+|-------|---------|
+| `ChaosRunner` | High-level experiment orchestrator: `run_experiment()` with retry, timeout, auto-cleanup; `assert_resilient()` for test assertions |
+
+**Config** (`config.yml`):
+
+```yaml
+chaos:
+    name: K8sChaosPlugin
+    location: ../plugins/chaos/k8s
+    enabled: false
+```
+
+**Dependencies**: `kubernetes>=31.0` (optional group `chaos` in pyproject.toml)
+
+**Validation**: `pytest src/test/python/ut/test_chaos*.py -v` — all mocked (no live cluster required for unit tests)
 
 ### T.1.6 — CI Skeleton
 
