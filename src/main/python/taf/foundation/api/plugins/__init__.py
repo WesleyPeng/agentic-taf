@@ -10,6 +10,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .cliplugin import CLIPlugin
-from .restplugin import RESTPlugin
-from .webplugin import WebPlugin
+from .cliplugin import CLIPlugin  # noqa: F401
+from .restplugin import RESTPlugin  # noqa: F401
+from .webplugin import WebPlugin  # noqa: F401

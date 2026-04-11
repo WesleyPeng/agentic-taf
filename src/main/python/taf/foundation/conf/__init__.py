@@ -10,4 +10,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .configuration import Configuration
+from .configuration import Configuration  # noqa: F401

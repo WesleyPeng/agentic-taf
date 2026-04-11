@@ -10,4 +10,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .bing_ui import *
+from .bing_ui import *  # noqa: F401,F403

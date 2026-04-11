@@ -13,7 +13,7 @@
 from abc import abstractmethod
 
 
-class Serializable(object):
+class Serializable:
     @abstractmethod
     def dump(self, path):
         pass

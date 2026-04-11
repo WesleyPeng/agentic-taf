@@ -11,7 +11,7 @@
 # GNU Lesser General Public License for more details.
 
 
-class UIElement(object):
+class UIElement:
     __slots__ = [
         '_current', '_root', '_parent',
         '_children', '_locators', '_constraints'
@@ -116,11 +116,10 @@ class UIElement(object):
             self._wrap_element(element)
 
     def _unwrap_element(self, element):
-        [
+        for prop in self.__slots__:
             setattr(
                 self, prop, getattr(element, prop)
-            ) for prop in self.__slots__
-        ]
+            )
 
     def _wrap_element(self, element):
         raise NotImplementedError(

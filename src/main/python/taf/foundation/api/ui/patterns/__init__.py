@@ -10,12 +10,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .container import Container as IContainer
-from .expandcollapse import ExpandCollapse as IExpandCollapse
-from .invoke import Invoke as IInvoke
-from .selection import Selection as ISelection
-from .selectionitem import SelectionItem as ISelectionItem
-from .table import Table as ITable
-from .text import Text as IText
-from .toggle import Toggle as IToggle
-from .value import Value as IValue
+from .container import Container as IContainer  # noqa: F401
+from .expandcollapse import ExpandCollapse as IExpandCollapse  # noqa: F401
+from .invoke import Invoke as IInvoke  # noqa: F401
+from .selection import Selection as ISelection  # noqa: F401
+from .selectionitem import SelectionItem as ISelectionItem  # noqa: F401
+from .table import Table as ITable  # noqa: F401
+from .text import Text as IText  # noqa: F401
+from .toggle import Toggle as IToggle  # noqa: F401
+from .value import Value as IValue  # noqa: F401

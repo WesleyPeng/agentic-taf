@@ -10,4 +10,4 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .client import Client
+from .client import Client  # noqa: F401

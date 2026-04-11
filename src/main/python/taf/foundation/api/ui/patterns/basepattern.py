@@ -11,5 +11,5 @@
 # GNU Lesser General Public License for more details.
 
 
-class BasePattern(object):
+class BasePattern:
     pass

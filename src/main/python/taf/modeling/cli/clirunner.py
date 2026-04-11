@@ -16,7 +16,7 @@ from taf.foundation.api.plugins import CLIPlugin
 
 
 class CLIRunner(
-    ServiceLocator.get_client(
+    ServiceLocator.get_client(  # type: ignore[misc]
         CLIPlugin
     ),
     Client

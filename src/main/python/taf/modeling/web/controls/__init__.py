@@ -10,10 +10,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .webbutton import WebButton
-from .webcheckbox import WebCheckBox
-from .webcombobox import WebComboBox
-from .weblink import WebLink
-from .webradiogroup import WebRadioGroup
-from .webtable import WebTable
-from .webtextbox import WebTextBox
+from .webbutton import WebButton  # noqa: F401
+from .webcheckbox import WebCheckBox  # noqa: F401
+from .webcombobox import WebComboBox  # noqa: F401
+from .weblink import WebLink  # noqa: F401
+from .webradiogroup import WebRadioGroup  # noqa: F401
+from .webtable import WebTable  # noqa: F401
+from .webtextbox import WebTextBox  # noqa: F401

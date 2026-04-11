@@ -13,11 +13,10 @@
 from .baseplugin import BasePlugin
 
 
-class MobilePlugin(object):
-    __metaclass__ = BasePlugin
+class MobilePlugin(metaclass=BasePlugin):
 
     def __init__(self):
-        super(MobilePlugin, self).__init__()
+        super().__init__()
 
     @property
     def controls(self):

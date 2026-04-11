@@ -56,7 +56,7 @@ class Frame(WebElement, IFrame):
     @property
     def items(self):
         if not self._children:
-            self._children = [
+            self._children = [  # type: ignore[assignment]
                 WebElement.create(element=element, parent=self)
                 for element in ElementFinder(
                     self.object

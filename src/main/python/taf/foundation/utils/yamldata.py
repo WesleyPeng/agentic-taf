@@ -19,7 +19,7 @@ class YAMLData(yaml.YAMLObject, Serializable):
     yaml_tag = '!YAMLData'
 
     def __init__(self, **kwargs):
-        super(YAMLData, self).__init__()
+        super().__init__()
 
         for key, value in kwargs.items():
             self.__setattr__(key, value)
@@ -79,15 +79,14 @@ class YAMLData(yaml.YAMLObject, Serializable):
             raise
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path: str) -> 'YAMLData':
         try:
             with open(path, 'r') as stream:
-                data = yaml.load(stream)
+                data = yaml.full_load(stream)
         except IOError as ioe:
             data = dict(
                 errno=ioe.errno,
                 filename=ioe.filename,
-                # message=ioe.message,
                 strerror=ioe.strerror
             )
         except Exception:

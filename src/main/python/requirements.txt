@@ -1,6 +1,4 @@
-enum34 >= 1.1.6
-paramiko >= 1.16.0
-PyYAML >= 3.11
-requests >= 2.9.1
-# selenium >= 2.48.0
-Appium-Python-Client >= 0.24
+PyYAML >= 6.0
+paramiko >= 3.0
+requests >= 2.31
+selenium >= 4.20

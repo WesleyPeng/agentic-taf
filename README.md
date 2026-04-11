@@ -2,7 +2,7 @@
 
 Agentic Test Automation Framework — an extensible, plugin-based, multi-layered framework for test automation across API, Web UI, WebSocket, CLI, and AI/LLM validation.
 
-Evolved from [PyXTaf](https://pypi.org/project/PyXTaf/) (uiXautomation), modernized for Python 3.12+ with Playwright, httpx, and LLM-as-judge capabilities.
+Evolved from [PyXTaf](https://pypi.org/project/PyXTaf/) (uiXautomation), modernized for Python 3.12+.
 
 ## Architecture
 
@@ -21,17 +21,16 @@ Evolved from [PyXTaf](https://pypi.org/project/PyXTaf/) (uiXautomation), moderni
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         Test Suites (pytest / behave)                   │
-│  API  │  UI  │  E2E  │  BDD  │  AI  │  Chaos  │  Load  │  Security    │
+│  Unit tests (ut/)  │  BDD/ATDD examples (bpt/)  │  Platform (planned)  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                          Modeling Layer                                  │
-│  RESTClient  │  WSClient  │  Browser  │  Page Objects  │  LLMJudge     │
+│    RESTClient    │    Browser    │    CLIRunner    │    Page Objects     │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                           Plugin Layer                                  │
-│  HttpxPlugin │ PlaywrightPlugin │ WebSocketPlugin │ ParamikoPlugin │    │
-│  SeleniumPlugin │ RequestsPlugin │ LLMJudgePlugin │ AppiumPlugin   │    │
+│  SeleniumPlugin  │  RequestsPlugin  │  ParamikoPlugin  │  AppiumPlugin │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                        Foundation Layer                                  │
-│  ServiceLocator  │  Configuration (YAML)  │  Utils  │  Chaos Module    │
+│        ServiceLocator  │  Configuration (YAML)  │  Utils               │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -39,20 +38,29 @@ Evolved from [PyXTaf](https://pypi.org/project/PyXTaf/) (uiXautomation), moderni
 
 The framework uses a **ServiceLocator** pattern with pluggable backends. Each plugin type defines an interface; concrete implementations are discovered at runtime via YAML configuration.
 
-| Plugin Interface | Concrete Implementations | Purpose |
-|------------------|--------------------------|---------|
-| `WebPlugin` | `PlaywrightPlugin` (new), `SeleniumPlugin` (existing) | Browser automation |
-| `RESTPlugin` | `HttpxPlugin` (new, async), `RequestsPlugin` (existing) | REST API testing |
-| `WSPlugin` (new) | `WebSocketPlugin` | WebSocket streaming |
-| `CLIPlugin` | `ParamikoPlugin` (existing) | SSH / CLI access |
-| `MobilePlugin` | `AppiumPlugin` (existing) | Mobile automation |
-| `LLMPlugin` (new) | `LLMJudgePlugin` | LLM response quality evaluation |
+**Implemented:**
+
+| Plugin Interface | Implementation | Purpose |
+|------------------|----------------|---------|
+| `WebPlugin` | `SeleniumPlugin` | Browser automation (Chrome/Firefox, headless supported) |
+| `RESTPlugin` | `RequestsPlugin` | REST API testing |
+| `CLIPlugin` | `ParamikoPlugin` | SSH / CLI access |
+| `MobilePlugin` | `AppiumPlugin` | Mobile automation |
+
+**Planned (T.1.3):**
+
+| Plugin Interface | Implementation | Deps |
+|------------------|----------------|------|
+| `WebPlugin` | `PlaywrightPlugin` (new default) | `playwright` |
+| `RESTPlugin` | `HttpxPlugin` (async) | `httpx` |
+| `WSPlugin` (new) | `WebSocketPlugin` | `websockets` |
+| `LLMPlugin` (new) | `LLMJudgePlugin` | `langchain-anthropic` |
 
 ### Layer Descriptions
 
 **Foundation** (`taf/foundation/`)
 - `ServiceLocator` — Plugin discovery and dependency injection via metaclass-based registry
-- `Configuration` — YAML-based config with environment variable overrides
+- `Configuration` — YAML-based config with environment variable overrides (`TAF_PLUGIN_<NAME>_<KEY>`)
 - `BasePlugin` — Metaclass that auto-registers plugin implementations
 - `Utils` — Logger, YAML data model, connection cache, serialization traits
 
@@ -60,19 +68,11 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - High-level abstractions that compose plugin capabilities into test-friendly APIs
 - `Browser` — Page navigation, screenshot, element interaction (wraps WebPlugin)
 - `RESTClient` — HTTP client with JSON encode/decode (wraps RESTPlugin)
-- `WSClient` (new) — Async WebSocket streaming client (wraps WSPlugin)
 - `CLIRunner` — SSH command execution (wraps CLIPlugin)
-- `LLMJudge` (new) — Rubric-based LLM response scoring (wraps LLMPlugin)
 
-**Chaos** (`taf/chaos/`) (new)
-- K8s-native fault injection (pod kill, network partition, resource pressure)
-- Resilience probes (HTTP health, K8s resource, Prometheus query)
-- Experiment orchestrator for structured chaos testing
-
-**Test Suites** (`src/test/python/suites/`)
-- Project-specific test suites that exercise target systems as black-box consumers
-- Framework unit tests in `src/test/python/ut/`
-- BDD/ATDD examples in `src/test/python/bpt/`
+**Test Suites** (`src/test/python/`)
+- `ut/` — 42 framework unit tests (all pass, 0 skipped)
+- `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
 
@@ -87,9 +87,7 @@ agentic-taf/
 │   │   │   │   │   ├── webplugin.py        # Browser automation interface
 │   │   │   │   │   ├── restplugin.py       # REST API interface
 │   │   │   │   │   ├── cliplugin.py        # SSH/CLI interface
-│   │   │   │   │   ├── mobileplugin.py     # Mobile interface
-│   │   │   │   │   ├── wsplugin.py         # WebSocket interface (new)
-│   │   │   │   │   └── llmplugin.py        # LLM-as-judge interface (new)
+│   │   │   │   │   └── mobileplugin.py     # Mobile interface
 │   │   │   │   ├── ui/                     # UI element abstractions
 │   │   │   │   │   ├── controls/           # Button, Checkbox, Edit, etc.
 │   │   │   │   │   ├── patterns/           # Invoke, Selection, Toggle, etc.
@@ -97,45 +95,24 @@ agentic-taf/
 │   │   │   │   ├── svc/REST/               # REST client base class
 │   │   │   │   └── cli/                    # CLI client base class
 │   │   │   ├── plugins/                    # Concrete implementations
-│   │   │   │   ├── web/playwright/         # Playwright plugin (new)
-│   │   │   │   ├── web/selenium/           # Selenium plugin (existing)
-│   │   │   │   ├── svc/httpx/              # httpx async plugin (new)
-│   │   │   │   ├── svc/requests/           # requests plugin (existing)
-│   │   │   │   ├── ws/                     # WebSocket plugin (new)
-│   │   │   │   ├── cli/paramiko/           # Paramiko SSH plugin (existing)
-│   │   │   │   ├── mobile/appium/          # Appium plugin (existing)
-│   │   │   │   └── llm/                    # LLM judge plugin (new)
+│   │   │   │   ├── web/selenium/           # Selenium plugin (Selenium 4, headless)
+│   │   │   │   ├── svc/requests/           # requests plugin
+│   │   │   │   ├── cli/paramiko/           # Paramiko SSH plugin
+│   │   │   │   └── mobile/appium/          # Appium plugin
 │   │   │   ├── conf/                       # YAML config + loader
 │   │   │   ├── servicelocator.py           # Plugin DI container
 │   │   │   └── utils/                      # Logger, YAMLData, traits
-│   │   ├── modeling/                       # High-level test models
-│   │   │   ├── web/                        # Browser + typed web controls
-│   │   │   ├── svc/                        # RESTClient
-│   │   │   ├── cli/                        # CLIRunner
-│   │   │   ├── ws/                         # WSClient (new)
-│   │   │   └── llm/                        # LLMJudge (new)
-│   │   └── chaos/                          # K8s chaos module (new)
+│   │   └── modeling/                       # High-level test models
+│   │       ├── web/                        # Browser + typed web controls
+│   │       ├── svc/                        # RESTClient
+│   │       └── cli/                        # CLIRunner
 │   │
 │   └── test/python/
-│       ├── ut/                             # Framework unit tests
-│       ├── bpt/                            # BDD/ATDD examples
-│       └── suites/                         # Project-specific test suites
-│           └── agentic/                    # Agentic QA Platform tests
-│               ├── api/                    # REST + WebSocket API tests
-│               ├── ui/                     # Playwright UI tests + page objects
-│               ├── e2e/                    # End-to-end provisioning flows
-│               ├── bdd/                    # Gherkin + behave scenarios
-│               ├── ai/                     # LLM-as-judge, tool selection, injection
-│               ├── chaos/                  # Platform chaos experiments
-│               ├── load/                   # Performance / throughput tests
-│               ├── security/              # RBAC, auth, secret tests
-│               ├── contract/              # OpenAPI schema validation
-│               └── config/                # preprod.yml, dev.yml, ci.yml
+│       ├── ut/                             # Framework unit tests (42 tests)
+│       └── bpt/                            # BDD/ATDD examples
 │
-├── pyproject.toml                          # Build config (replaces setup.py + PyBuilder)
-├── conftest.py                             # Global pytest configuration
-├── Dockerfile                              # Test runner container
-├── docker-compose.yml                      # Local dev services
+├── pyproject.toml                          # Build config + dependencies
+├── .github/workflows/ci.yml               # CI: lint → test → build
 └── README.md
 ```
 
@@ -143,13 +120,13 @@ agentic-taf/
 
 ```bash
 # From source (development)
+pip install -r src/main/python/requirements-dev.txt
+
+# Or via pyproject.toml extras
 pip install -e ".[dev]"
 
 # Run framework unit tests
-pytest src/test/python/ut/ -v
-
-# Run agentic platform test suites
-pytest src/test/python/suites/agentic/ -v --config=preprod
+PYTHONPATH=src/main/python pytest src/test/python/ut/ -v
 ```
 
 ## Plugin Configuration
@@ -160,30 +137,24 @@ Plugins are configured via YAML and discovered by the ServiceLocator at runtime:
 # taf/foundation/conf/config.yml
 plugins:
     web:
-        name: PlaywrightPlugin
-        location: ../plugins/web/playwright
-        enabled: true
-    rest:
-        name: HttpxPlugin
-        location: ../plugins/svc/httpx
-        enabled: true
-    websocket:
-        name: WebSocketPlugin
-        location: ../plugins/ws
+        name: SeleniumPlugin
+        location: ../plugins/web/selenium
         enabled: true
     cli:
         name: ParamikoPlugin
         location: ../plugins/cli/paramiko
         enabled: true
-    llm:
-        name: LLMJudgePlugin
-        location: ../plugins/llm
+    REST:
+        name: RequestsPlugin
+        location: ../plugins/svc/requests
         enabled: true
     mobile:
         name: AppiumPlugin
         location: ../plugins/mobile/appium
         enabled: false
 ```
+
+Override via environment variables: `TAF_PLUGIN_WEB_ENABLED=false`
 
 ## Key Concepts
 
@@ -193,10 +164,10 @@ plugins:
 from taf.foundation import ServiceLocator
 from taf.foundation.api.plugins import WebPlugin, RESTPlugin
 
-# Get browser (resolves PlaywrightPlugin or SeleniumPlugin based on config)
+# Get browser (resolves SeleniumPlugin based on config)
 Browser = ServiceLocator.get_app_under_test(WebPlugin)
 
-# Get REST client (resolves HttpxPlugin or RequestsPlugin based on config)
+# Get REST client (resolves RequestsPlugin based on config)
 client = ServiceLocator.get_client(RESTPlugin)
 ```
 
@@ -204,40 +175,25 @@ client = ServiceLocator.get_client(RESTPlugin)
 
 ```python
 from taf.modeling.web import Browser
-from taf.modeling.web.controls import WebButton, WebTextBox
+from taf.modeling.web import WebButton, WebTextBox
 
-class LoginPage:
-    def __init__(self, browser: Browser):
-        self.username = WebTextBox(locator="[data-testid='username']")
-        self.password = WebTextBox(locator="[data-testid='password']")
-        self.submit = WebButton(locator="[data-testid='login-btn']")
+browser = Browser(name='chrome', headless=True)
+browser.launch('http://example.com')
 
-    def login(self, user: str, password: str):
-        self.username.set_text(user)
-        self.password.set_text(password)
-        self.submit.click()
-```
-
-### LLM-as-Judge
-
-```python
-from taf.modeling.llm import LLMJudge
-
-judge = LLMJudge()
-scores = judge.evaluate(
-    prompt="What environments are running?",
-    response="Currently there are 3 active environments...",
-    context={"actual_count": 3}
-)
-assert scores["accuracy"] >= 4  # 1-5 scale
+txt_search = WebTextBox(id='search_box')
+btn_go = WebButton(id='submit_btn')
+txt_search.set('test query')
+btn_go.click()
 ```
 
 ## History
 
 This project was originally created as **uiXautomation** (PyXTaf) — a Python 2/3 compatible
 test automation framework with Selenium, Appium, Paramiko, and Requests plugins. It has been
-renamed to **Agentic-TAF** and modernized for Python 3.12+ with new plugin interfaces for
-Playwright, httpx, WebSocket, and LLM-as-judge testing.
+renamed to **Agentic-TAF** and modernized for Python 3.12+ with Selenium 4 support.
+
+New plugin interfaces (Playwright, httpx, WebSocket, LLM-as-judge) and platform test suites
+are planned — see [docs/implementation-plan.md](docs/implementation-plan.md) for the roadmap.
 
 ## License
 

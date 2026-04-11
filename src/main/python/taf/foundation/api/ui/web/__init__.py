@@ -10,6 +10,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .browser import Browser
-from .page import Page
-from .webelement import WebElement
+from .browser import Browser  # noqa: F401
+from .page import Page  # noqa: F401
+from .webelement import WebElement  # noqa: F401

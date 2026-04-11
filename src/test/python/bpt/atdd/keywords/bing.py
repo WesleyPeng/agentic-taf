@@ -19,7 +19,7 @@ from taf.modeling.web import Browser
 from .robotlistener import RobotListener
 
 
-class SearchKeywords(object):
+class SearchKeywords:
     ROBOT_LIBRARY_VERSION = get_version()
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
 

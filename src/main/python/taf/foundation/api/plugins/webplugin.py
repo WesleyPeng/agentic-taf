@@ -13,11 +13,10 @@
 from .baseplugin import BasePlugin
 
 
-class WebPlugin(object):
-    __metaclass__ = BasePlugin
+class WebPlugin(metaclass=BasePlugin):
 
     def __init__(self):
-        super(WebPlugin, self).__init__()
+        super().__init__()
 
     @property
     def controls(self):

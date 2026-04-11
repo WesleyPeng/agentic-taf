@@ -10,11 +10,11 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .browser import Browser
-from .controls import WebButton
-from .controls import WebCheckBox
-from .controls import WebComboBox
-from .controls import WebLink
-from .controls import WebRadioGroup
-from .controls import WebTable
-from .controls import WebTextBox
+from .browser import Browser  # noqa: F401
+from .controls import WebButton  # noqa: F401
+from .controls import WebCheckBox  # noqa: F401
+from .controls import WebComboBox  # noqa: F401
+from .controls import WebLink  # noqa: F401
+from .controls import WebRadioGroup  # noqa: F401
+from .controls import WebTable  # noqa: F401
+from .controls import WebTextBox  # noqa: F401

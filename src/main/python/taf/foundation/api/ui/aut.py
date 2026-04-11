@@ -13,7 +13,7 @@
 from taf.foundation.utils import ConnectionCache
 
 
-class AUT(object):
+class AUT:
     cache = None
     current = None
 
@@ -26,7 +26,7 @@ class AUT(object):
         if not AUT.cache:
             AUT.cache = ConnectionCache(identifier)
 
-        self.id = self.cache.register(
+        self.id = self.cache.register(  # type: ignore[union-attr]
             self._create_instance(name, **kwargs),
             identifier
         )
@@ -40,8 +40,8 @@ class AUT(object):
         )
 
     def activate(self):
-        if self.id != self.cache.current_key:
-            self.cache.current_key = self.id
+        if self.id != self.cache.current_key:  # type: ignore[union-attr]
+            self.cache.current_key = self.id  # type: ignore[union-attr]
 
             AUT.current = self
 
@@ -51,9 +51,9 @@ class AUT(object):
         return self.get_screenshot_data()
 
     def close(self):
-        self.cache.close(self.id)
+        self.cache.close(self.id)  # type: ignore[union-attr]
 
-        if not self.cache.current:
+        if not self.cache.current:  # type: ignore[union-attr]
             AUT.cache = None
             AUT.current = None
 

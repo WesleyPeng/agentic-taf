@@ -13,7 +13,7 @@
 import socket
 
 
-class Client(object):
+class Client:
     def __init__(
             self,
             hostname,

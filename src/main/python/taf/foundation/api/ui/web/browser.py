@@ -20,12 +20,12 @@ class Browser(AUT):
             identifier=None,
             **kwargs
     ):
-        super(Browser, self).__init__(
+        super().__init__(
             name, identifier, **kwargs
         )
 
     @staticmethod
-    def launch(url='about:blank', **kwargs):
+    def launch(url='about:blank', **kwargs):  # type: ignore[override]
         raise NotImplementedError(
             'Web browser navigates to specific page'
         )

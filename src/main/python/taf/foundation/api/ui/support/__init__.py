@@ -10,6 +10,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from .elementfinder import ElementFinder
-from .locator import Locator
-from .waithandler import WaitHandler
+from .elementfinder import ElementFinder  # noqa: F401
+from .locator import Locator  # noqa: F401
+from .waithandler import WaitHandler  # noqa: F401

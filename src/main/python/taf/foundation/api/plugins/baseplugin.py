@@ -26,7 +26,7 @@ class BasePlugin(type):
             identifier = name.lower()
             cls.plugins[identifier] = cls
 
-        super(BasePlugin, cls).__init__(
+        super().__init__(
             name, bases, attributes
         )
 

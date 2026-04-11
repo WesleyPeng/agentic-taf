@@ -16,7 +16,7 @@ from taf.foundation.api.ui.web import WebElement
 
 
 class WebTextBox(
-    ServiceLocator.get_modeled_control(
+    ServiceLocator.get_modeled_control(  # type: ignore[misc]
         Edit
     ), WebElement, Edit
 ):

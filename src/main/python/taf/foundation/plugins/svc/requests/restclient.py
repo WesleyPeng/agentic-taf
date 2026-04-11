@@ -17,7 +17,7 @@ from requests.sessions import Session
 from taf.foundation.api.svc.REST import Client
 
 
-class RESTClient(Session, Client):
+class RESTClient(Session, Client):  # type: ignore[misc]
     def __init__(
             self,
             base_url,
@@ -41,7 +41,7 @@ class RESTClient(Session, Client):
 
         urllib3.disable_warnings()
 
-    def get(self, url, **kwargs):
+    def get(self, url, **kwargs):  # type: ignore[override]
         return Session.get(
             self,
             self._get_resource_uri(url),
@@ -50,7 +50,7 @@ class RESTClient(Session, Client):
             )
         )
 
-    def post(
+    def post(  # type: ignore[override]
             self,
             url,
             data=None,
@@ -66,7 +66,7 @@ class RESTClient(Session, Client):
             )
         )
 
-    def put(self, url, data=None, **kwargs):
+    def put(self, url, data=None, **kwargs):  # type: ignore[override]
         return Session.put(
             self,
             self._get_resource_uri(url),
@@ -76,7 +76,7 @@ class RESTClient(Session, Client):
             )
         )
 
-    def delete(self, url, **kwargs):
+    def delete(self, url, **kwargs):  # type: ignore[override]
         return Session.delete(
             self,
             self._get_resource_uri(url),
@@ -85,7 +85,7 @@ class RESTClient(Session, Client):
             )
         )
 
-    def patch(self, url, data=None, **kwargs):
+    def patch(self, url, data=None, **kwargs):  # type: ignore[override]
         return Session.patch(
             self,
             self._get_resource_uri(url),
@@ -105,23 +105,18 @@ class RESTClient(Session, Client):
             password
         )
 
-    def _get_resource_uri(self, resource):
-        import sys
-
-        if sys.version_info.major < 3:
-            from urlparse import urljoin
-        else:
-            from urllib.parse import urljoin
+    def _get_resource_uri(self, resource: str) -> str:
+        from urllib.parse import urljoin
 
         return urljoin(
-            self.params.get('url'),
+            self.params.get('url'),  # type: ignore[union-attr]
             resource
         )
 
     def _set_default_timeout(self, **kwargs):
         kwargs.setdefault(
             'timeout',
-            self.params.get('timeout', 60)
+            self.params.get('timeout', 60)  # type: ignore[union-attr]
         )
 
         return kwargs

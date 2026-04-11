@@ -11,9 +11,9 @@
 # GNU Lesser General Public License for more details.
 
 import glob
+import importlib.util
 import inspect
 import os
-import sys
 
 from taf.foundation.api.plugins import CLIPlugin
 from taf.foundation.api.plugins import WebPlugin
@@ -22,11 +22,11 @@ from taf.foundation.api.ui import UIElement
 from taf.foundation.conf import Configuration
 
 
-class ServiceLocator(object):
-    _plugins = {}
-    _clients = {}
+class ServiceLocator:
+    _plugins: dict[type, type] = {}
+    _clients: dict[type, object] = {}
 
-    def __init__(self, plugin_type=WebPlugin):
+    def __init__(self, plugin_type: type = WebPlugin) -> None:
         if plugin_type not in ServiceLocator._plugins:
             self._identify_plugin_by_type(
                 plugin_type
@@ -87,7 +87,7 @@ class ServiceLocator(object):
 
         return cls._clients.get(plugin)
 
-    def _identify_plugin_by_type(self, plugin_type):
+    def _identify_plugin_by_type(self, plugin_type: type) -> None:
         _base_dir = os.path.join(
             os.path.dirname(__file__),
             'conf'
@@ -114,8 +114,8 @@ class ServiceLocator(object):
                 if plugin_type in self._plugins:
                     break
 
-    def _inspect_classes(self, plugin_dir):
-        classes = []
+    def _inspect_classes(self, plugin_dir: str) -> list[type]:
+        classes: list[type] = []
 
         try:
             for py in self._find_python_files(plugin_dir):
@@ -127,7 +127,7 @@ class ServiceLocator(object):
 
         return classes
 
-    def _find_python_files(self, directory):
+    def _find_python_files(self, directory: str) -> list[str]:
         _cd = os.path.realpath(directory)
 
         files = [
@@ -148,32 +148,21 @@ class ServiceLocator(object):
 
         return files
 
-    def _import_classes(self, location):
-        fp, classes = None, []
+    def _import_classes(self, location: str) -> list[type]:
+        classes: list[type] = []
 
         try:
             path, filename = os.path.split(location)
             module_name = os.path.splitext(filename)[0]
 
-            if sys.version_info.major < 3:  # Python2.x
-                import imp
+            spec = importlib.util.spec_from_file_location(
+                module_name, location
+            )
+            if spec is None or spec.loader is None:
+                return classes
 
-                fp, imp_loc, desc = imp.find_module(
-                    module_name, [path]
-                )
-
-                module = imp.load_module(
-                    module_name, fp, imp_loc, desc
-                )
-            else:
-                import importlib.util as imp
-
-                spec = imp.spec_from_file_location(
-                    module_name, location
-                )
-
-                module = imp.module_from_spec(spec)
-                spec.loader.exec_module(module)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
 
             classes.extend(
                 cls for _, cls in inspect.getmembers(
@@ -181,13 +170,11 @@ class ServiceLocator(object):
                     predicate=inspect.isclass
                 )
             )
-        except (ValueError, ImportError):
-            raise
-        except (OSError, IOError):
+        except ImportError:
+            # Optional plugin dependency not installed — skip this module
             pass
-        finally:
-            if fp:
-                fp.close()
+        except OSError:
+            pass
 
         return classes
 

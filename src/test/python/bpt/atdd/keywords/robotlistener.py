@@ -17,7 +17,7 @@ import os
 from robot.api import logger
 
 
-class RobotListener(object):
+class RobotListener:
     ROBOT_LISTENER_API_VERSION = 2
 
     def __init__(
@@ -99,7 +99,7 @@ class RobotListener(object):
                         ).decode('ascii')
                     ), html=True
                 )
-        except:
+        except Exception:
             pass  # Ignore exceptions while taking screenshots
         finally:
             if png:

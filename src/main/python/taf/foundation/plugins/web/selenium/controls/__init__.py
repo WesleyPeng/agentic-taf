@@ -10,12 +10,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-from taf.foundation.plugins.web.selenium.controls.button import Button
-from taf.foundation.plugins.web.selenium.controls.checkbox import CheckBox
-from taf.foundation.plugins.web.selenium.controls.combobox import ComboBox
-from taf.foundation.plugins.web.selenium.controls.edit import Edit
-from taf.foundation.plugins.web.selenium.controls.frame import Frame
-from taf.foundation.plugins.web.selenium.controls.link import Link
-from taf.foundation.plugins.web.selenium.controls.radiogroup import RadioGroup
-from taf.foundation.plugins.web.selenium.controls.table import Table
-from taf.foundation.plugins.web.selenium.controls.text import Text
+from taf.foundation.plugins.web.selenium.controls.button import Button  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.checkbox import CheckBox  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.combobox import ComboBox  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.edit import Edit  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.frame import Frame  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.link import Link  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.radiogroup import RadioGroup  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.table import Table  # noqa: F401
+from taf.foundation.plugins.web.selenium.controls.text import Text  # noqa: F401
