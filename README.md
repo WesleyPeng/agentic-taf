@@ -215,8 +215,9 @@ This project was originally created as **uiXautomation** (PyXTaf) — a Python 2
 test automation framework with Selenium, Appium, Paramiko, and Requests plugins. It has been
 renamed to **Agentic-TAF** and modernized for Python 3.12+ with Selenium 4 support.
 
-New plugin interfaces (Playwright, httpx, WebSocket, LLM-as-judge) and platform test suites
-are planned — see [docs/implementation-plan.md](docs/implementation-plan.md) for the roadmap.
+New plugin interfaces (Playwright, httpx, WebSocket, LLM-as-judge, K8s Chaos) and platform test suites
+(API, UI, AI, BDD, chaos, security — 54 E2E + 7 BDD) are implemented.
+See [docs/implementation-plan.md](docs/implementation-plan.md) for the full roadmap.
 
 ## License
 
