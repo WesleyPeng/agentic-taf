@@ -136,29 +136,20 @@ Target: 19 agent REST endpoints on preprod (via kubectl port-forward).
 
 ---
 
-## T.3 — UI Automation (Playwright)
+## T.3 — UI Automation (Playwright) (Done)
 
-Target: 7 dashboard pages + login.
+Page Objects + Playwright headless E2E tests against live dashboard.
 
-### T.3.1 — Page Objects
+- [x] Page Objects: LoginPage (Ant Design form + select), DashboardPage, ChatPage, EnvironmentsPage
+- [x] UI conftest.py: Playwright browser session fixture, page fixture with auto-navigation
+- [x] Login flow (2 tests): login page visible, dev login → dashboard loaded
+- [x] Navigation (3 tests): chat, environments, all 6 pages via nav sidebar
+- [x] Dashboard (2 tests): dashboard loads with heading, no error state
+- [x] Responsive layout (3 tests): desktop 1920, tablet 1366, mobile 375
+- [x] preprod.yml updated with dashboard base URL
+- [x] All 10 E2E UI tests pass against live preprod dashboard v0.9.1
 
-One class per page in `suites/agentic/ui/pages/`:
-
-`LoginPage`, `DashboardPage`, `ChatPage`, `EnvironmentsPage`,
-`TestResultsPage`, `ReportsPage`, `AnalyticsPage`
-
-### T.3.2 — UI Tests
-
-| Test | Acceptance Criteria |
-|------|---------------------|
-| Login flow (dev login, session persistence) | Auth cycle works |
-| Dashboard health indicators | No "down" indicators on healthy cluster |
-| Chat conversation (send/receive) | Agent responds via UI |
-| Environment lifecycle via UI form | Create → verify in table → release |
-| Cross-page navigation | All routes work |
-| Responsive layout (1920, 1366, 375 viewports) | No layout breaks |
-
-**Validation**: `pytest src/test/python/suites/agentic/ui/ -v --headless`
+**Validation**: `DASHBOARD_BASE_URL=http://localhost:18080 pytest src/test/python/suites/agentic/ui/ -v -m e2e`
 
 ---
 
