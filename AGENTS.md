@@ -53,6 +53,7 @@ agentic-taf/
 │       ├── security/                 # T.8: Security tests (8 tests)
 │       ├── ui/                       # T.3: UI tests (10 tests, Playwright)
 │       │   └── pages/                # Page Objects (engine-agnostic)
+│       ├── ai/                       # T.4: AI tests (12 tests, graceful skip)
 │       ├── config/preprod.yml        # Environment config
 │       ├── conftest.py               # Shared fixtures (ServiceLocator → HttpClient)
 │       └── contract/schemas/         # OpenAPI schema
