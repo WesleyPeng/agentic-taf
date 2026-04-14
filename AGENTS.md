@@ -47,7 +47,12 @@ agentic-taf/
 │
 ├── src/test/python/
 │   ├── ut/                           # Framework unit tests (142 tests)
-│   └── bpt/                          # BDD/ATDD examples (Bing, httpbin)
+│   ├── bpt/                          # BDD/ATDD examples (Bing, httpbin)
+│   └── suites/agentic/              # Platform E2E test suites
+│       ├── api/                      # T.2: API tests (21 tests, contract + functional + state machine)
+│       ├── config/preprod.yml        # Environment config (agent URL, auth roles)
+│       ├── conftest.py               # Shared fixtures (ServiceLocator → HttpClient)
+│       └── contract/schemas/         # OpenAPI schema for contract validation
 │
 ├── docs/
 │   ├── architecture.md               # Architecture deep-dive
@@ -56,27 +61,24 @@ agentic-taf/
 ├── CLAUDE.md                         # AI agent conventions (this project)
 ├── AGENTS.md                         # Reference tables (this file)
 ├── README.md                         # Project overview
+├── Jenkinsfile                       # Jenkins CI pipeline (active + stub stages)
 ├── pyproject.toml                    # Build config (PEP 517/518, single source of truth)
-├── .github/workflows/ci.yml         # CI: lint → test → build
+├── .github/workflows/ci.yml         # CI: lint → test (JUnit + coverage) → build
 └── LICENSE                           # LGPL-3.0
 ```
 
-### Planned directories (T.2+)
+### Planned directories (T.3+)
 
 These will be created as part of future tasks:
 
 ```
-src/test/python/
-    └── suites/agentic/               # T.2–T.8: Platform test suites
-        ├── api/                      # T.2: REST + WebSocket API tests
-        ├── ui/                       # T.3: Playwright UI tests
-        ├── ai/                       # T.4: LLM-as-judge tests
-        ├── bdd/                      # T.5: Gherkin + behave
-        ├── chaos/                    # T.6: Chaos experiments
-        ├── load/                     # T.7: Performance tests
-        ├── security/                 # T.8: RBAC, auth tests
-        ├── contract/                 # T.2: OpenAPI validation
-        └── config/                   # Environment configs
+src/test/python/suites/agentic/
+    ├── ui/                           # T.3: Playwright UI tests
+    ├── ai/                           # T.4: LLM-as-judge tests
+    ├── bdd/                          # T.5: Gherkin + behave
+    ├── chaos/                        # T.6: Chaos experiments
+    ├── load/                         # T.7: Performance tests
+    └── security/                     # T.8: RBAC, auth tests
 ```
 
 ## Implementation Rules

@@ -28,7 +28,7 @@ Language: Python 3.12+
 
 Four-layer plugin architecture (top to bottom):
 
-1. **Test Suites** (`src/test/python/`) — `ut/` (142 unit tests), `bpt/` (BDD/ATDD examples), `suites/` (planned)
+1. **Test Suites** (`src/test/python/`) — `ut/` (142 unit tests), `suites/agentic/api/` (21 E2E tests), `bpt/` (BDD/ATDD examples)
 2. **Modeling** (`src/main/python/taf/modeling/`) — Browser, RESTClient, CLIRunner, WSClient, LLMJudge, ChaosRunner
 3. **Foundation** (`src/main/python/taf/foundation/`) — ServiceLocator, Configuration (YAML), Utils
 4. **Plugins** (`src/main/python/taf/foundation/plugins/`) — Concrete implementations discovered at runtime via ServiceLocator
@@ -101,4 +101,6 @@ client = ServiceLocator.get_client(RESTPlugin)
 - **Selenium 4 API** — use `find_elements(By.ID, value)` not deprecated `find_elements_by_id()`. Use `Service` and `Options`, not `executable_path` or `desired_capabilities`.
 - **LLM provider selection** — default is `openai` (OpenAI-compatible). Set `TAF_LLM_PROVIDER=anthropic` or pass `provider='anthropic'` for native Anthropic API.
 - **Optional plugins** — websocket, llm, chaos plugins are `enabled: False` by default. Install the optional dep (`pip install .[chaos]`) and set `enabled: True` or use env var override.
+- **Configuration env overrides are case-insensitive** — `TAF_PLUGIN_REST_NAME` matches config key `REST` (uppercase). The lookup normalizes to lowercase.
+- **E2E tests use ServiceLocator** — never import `httpx.Client` or concrete plugins directly. Use `conftest.py` fixtures that resolve via `ServiceLocator.get_client(RESTPlugin)` with env override.
 - **BDD tests use behave, not pytest-bdd** — existing examples in `src/test/python/bpt/bdd/` use behave with Gherkin.

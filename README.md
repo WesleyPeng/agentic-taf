@@ -74,6 +74,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 
 **Test Suites** (`src/test/python/`)
 - `ut/` — 142 framework unit tests (all pass)
+- `suites/agentic/api/` — 21 E2E API tests against live preprod (contract, functional, state machine)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
@@ -114,10 +115,15 @@ agentic-taf/
 │   │
 │   └── test/python/
 │       ├── ut/                             # Framework unit tests (142 tests)
+│       ├── suites/agentic/                 # Platform E2E test suites
+│       │   ├── api/                        # API tests (21 tests)
+│       │   ├── config/                     # Environment configs
+│       │   └── contract/schemas/           # OpenAPI schema
 │       └── bpt/                            # BDD/ATDD examples
 │
+├── Jenkinsfile                             # Jenkins CI pipeline
 ├── pyproject.toml                          # Build config + dependencies
-├── .github/workflows/ci.yml               # CI: lint → test → build
+├── .github/workflows/ci.yml               # CI: lint → test (JUnit + coverage) → build
 └── README.md
 ```
 
