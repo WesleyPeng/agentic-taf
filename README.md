@@ -24,10 +24,10 @@ Evolved from [PyXTaf](https://pypi.org/project/PyXTaf/) (uiXautomation), moderni
 │  Unit tests (ut/)  │  BDD/ATDD examples (bpt/)  │  Platform (planned)  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                          Modeling Layer                                  │
-│    RESTClient    │    Browser    │    CLIRunner    │    Page Objects     │
+│  RESTClient │ Browser │ CLIRunner │ WSClient │ LLMJudge │ ChaosRunner  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                           Plugin Layer                                  │
-│  SeleniumPlugin  │  RequestsPlugin  │  ParamikoPlugin  │  AppiumPlugin │
+│  Selenium │ Playwright │ Requests │ httpx │ WS │ Paramiko │ LLM │ K8s │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                        Foundation Layer                                  │
 │        ServiceLocator  │  Configuration (YAML)  │  Utils               │
@@ -49,9 +49,10 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 | `WSPlugin` | `WebSocketPlugin` (optional) | WebSocket streaming (websockets) |
 | `CLIPlugin` | `ParamikoPlugin` | SSH / CLI access |
 | `MobilePlugin` | `AppiumPlugin` | Mobile automation |
-| `LLMPlugin` | `LLMJudgePlugin` (optional) | LLM response quality evaluation |
+| `LLMPlugin` | `LLMJudgePlugin` (optional) | LLM response quality evaluation (OpenAI/Anthropic) |
+| `ChaosPlugin` | `K8sChaosPlugin` (optional) | K8s chaos engineering (pod kill, network partition, Flux suspend) |
 
-> **Optional plugins** require their dependency installed (`pip install agentic-taf[playwright]`, etc.)
+> **Optional plugins** require their dependency installed (`pip install agentic-taf[chaos]`, etc.)
 > and a config.yml change to enable. Defaults remain Selenium + Requests.
 
 ### Layer Descriptions
@@ -67,9 +68,12 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `Browser` — Page navigation, screenshot, element interaction (wraps WebPlugin)
 - `RESTClient` — HTTP client with JSON encode/decode (wraps RESTPlugin)
 - `CLIRunner` — SSH command execution (wraps CLIPlugin)
+- `WSClient` — WebSocket streaming with `collect()`, `collect_text()`, `send_and_receive()`
+- `LLMJudge` — LLM-as-judge with `assert_quality()` threshold assertions (OpenAI/Anthropic)
+- `ChaosRunner` — Chaos experiment lifecycle with `assert_resilient()` retry/timeout
 
 **Test Suites** (`src/test/python/`)
-- `ut/` — 42 framework unit tests (all pass, 0 skipped)
+- `ut/` — 142 framework unit tests (all pass)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
@@ -80,33 +84,36 @@ agentic-taf/
 │   ├── main/python/taf/                    # Framework core
 │   │   ├── foundation/
 │   │   │   ├── api/
-│   │   │   │   ├── plugins/                # Plugin interfaces
-│   │   │   │   │   ├── baseplugin.py       # Metaclass plugin registry
-│   │   │   │   │   ├── webplugin.py        # Browser automation interface
-│   │   │   │   │   ├── restplugin.py       # REST API interface
-│   │   │   │   │   ├── cliplugin.py        # SSH/CLI interface
-│   │   │   │   │   └── mobileplugin.py     # Mobile interface
+│   │   │   │   ├── plugins/                # Plugin interfaces (7 types)
 │   │   │   │   ├── ui/                     # UI element abstractions
-│   │   │   │   │   ├── controls/           # Button, Checkbox, Edit, etc.
-│   │   │   │   │   ├── patterns/           # Invoke, Selection, Toggle, etc.
-│   │   │   │   │   └── support/            # Locator, ElementFinder, WaitHandler
 │   │   │   │   ├── svc/REST/               # REST client base class
-│   │   │   │   └── cli/                    # CLI client base class
-│   │   │   ├── plugins/                    # Concrete implementations
-│   │   │   │   ├── web/selenium/           # Selenium plugin (Selenium 4, headless)
-│   │   │   │   ├── svc/requests/           # requests plugin
-│   │   │   │   ├── cli/paramiko/           # Paramiko SSH plugin
-│   │   │   │   └── mobile/appium/          # Appium plugin
+│   │   │   │   ├── cli/                    # CLI client base class
+│   │   │   │   ├── ws/                     # WebSocket client base class
+│   │   │   │   ├── llm/                    # LLM client base class
+│   │   │   │   └── chaos/                  # Chaos client base class
+│   │   │   ├── plugins/                    # Concrete implementations (9 plugins)
+│   │   │   │   ├── web/selenium/           # SeleniumPlugin (default)
+│   │   │   │   ├── web/playwright/         # PlaywrightPlugin (optional)
+│   │   │   │   ├── svc/requests/           # RequestsPlugin (default)
+│   │   │   │   ├── svc/httpx/              # HttpxRESTPlugin (optional)
+│   │   │   │   ├── ws/websocket/           # WebSocketPlugin (optional)
+│   │   │   │   ├── cli/paramiko/           # ParamikoPlugin
+│   │   │   │   ├── mobile/appium/          # AppiumPlugin
+│   │   │   │   ├── llm/judge/              # LLMJudgePlugin (optional)
+│   │   │   │   └── chaos/k8s/              # K8sChaosPlugin (optional)
 │   │   │   ├── conf/                       # YAML config + loader
 │   │   │   ├── servicelocator.py           # Plugin DI container
 │   │   │   └── utils/                      # Logger, YAMLData, traits
-│   │   └── modeling/                       # High-level test models
+│   │   └── modeling/                       # High-level test models (6 types)
 │   │       ├── web/                        # Browser + typed web controls
 │   │       ├── svc/                        # RESTClient
-│   │       └── cli/                        # CLIRunner
+│   │       ├── cli/                        # CLIRunner
+│   │       ├── ws/                         # WSClient
+│   │       ├── llm/                        # LLMJudge
+│   │       └── chaos/                      # ChaosRunner
 │   │
 │   └── test/python/
-│       ├── ut/                             # Framework unit tests (42 tests)
+│       ├── ut/                             # Framework unit tests (142 tests)
 │       └── bpt/                            # BDD/ATDD examples
 │
 ├── pyproject.toml                          # Build config + dependencies

@@ -76,56 +76,20 @@ Tasks are ordered by dependency. Each task has acceptance criteria and a validat
 - [x] 20 new unit tests (109 total); LLM tests cover both OpenAI and Anthropic providers
 - [x] Validation: flake8 0, mypy 0 (141 files), pytest 109 passed
 
-### T.1.5 — Chaos Plugin
+### T.1.5 — Chaos Plugin (Done)
 
 Follows the same plugin architecture as REST, WebSocket, LLM, etc.
 No standalone `taf/chaos/` module — chaos is a first-class plugin.
 
-**Plugin interface** (`api/plugins/chaosplugin.py`):
-
-```python
-class ChaosPlugin(metaclass=BasePlugin):
-    @property
-    def client(self):
-        """Returns the chaos client class (experiments + probes)."""
-```
-
-**Base client** (`api/chaos/client.py`):
-
-| Method | Purpose |
-|--------|---------|
-| `inject(fault, target, **kwargs)` | Inject a fault (pod_kill, network_partition, resource_pressure, dns_failure, flux_suspend) |
-| `verify(probe, target, **kwargs) -> bool` | Run a resilience probe (http_health, k8s_ready, prometheus_query) |
-| `run_experiment(fault, probe, target, **kwargs) -> dict` | Full lifecycle: inject → wait → verify → cleanup → return result |
-| `cleanup(target, **kwargs)` | Revert injected fault |
-
-**Concrete implementation** (`plugins/chaos/k8s/`):
-
-| File | Purpose |
-|------|---------|
-| `k8schaosplugin.py` | `ChaosPlugin` subclass, returns `K8sChaosClient` |
-| `k8schaosclient.py` | `kubernetes` Python client: pod delete, network policy, resource limits, CoreDNS ConfigMap, Flux suspend |
-| `faults.py` | Fault definitions: `PodKill`, `NetworkPartition`, `ResourcePressure`, `DNSFailure`, `FluxSuspend` |
-| `probes.py` | Probe definitions: `HttpHealthProbe`, `K8sReadyProbe`, `PrometheusProbe` |
-
-**Modeling** (`modeling/chaos/`):
-
-| Class | Purpose |
-|-------|---------|
-| `ChaosRunner` | High-level experiment orchestrator: `run_experiment()` with retry, timeout, auto-cleanup; `assert_resilient()` for test assertions |
-
-**Config** (`config.yml`):
-
-```yaml
-chaos:
-    name: K8sChaosPlugin
-    location: ../plugins/chaos/k8s
-    enabled: false
-```
-
-**Dependencies**: `kubernetes>=31.0` (optional group `chaos` in pyproject.toml)
-
-**Validation**: `pytest src/test/python/ut/test_chaos*.py -v` — all mocked (no live cluster required for unit tests)
+- [x] ChaosPlugin interface (`api/plugins/chaosplugin.py`) + base client (`api/chaos/client.py`)
+- [x] Fault definitions: `PodKill`, `NetworkPartition`, `ResourcePressure`, `DNSFailure`, `FluxSuspend`
+- [x] Probe definitions: `HttpHealthProbe`, `K8sReadyProbe`, `PrometheusProbe`
+- [x] K8sChaosClient (`plugins/chaos/k8s/`): kubernetes Python client, pod delete, network policy, Flux suspend/resume
+- [x] K8sChaosPlugin: ServiceLocator-discoverable, `config.yml` entry (enabled: False)
+- [x] ChaosRunner modeling (`modeling/chaos/`): `run_experiment()` lifecycle, `assert_resilient()` with retry/timeout
+- [x] Optional dep: `kubernetes>=31.0` in `pyproject.toml[chaos]`
+- [x] 33 new unit tests (142 total); K8s tests skipUnless kubernetes installed
+- [x] Validation: flake8 0, mypy 0 (152 files), pytest 142 passed
 
 ### T.1.6 — CI Skeleton
 
