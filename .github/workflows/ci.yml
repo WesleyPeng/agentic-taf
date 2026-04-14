@@ -56,7 +56,23 @@ jobs:
 
       - name: Run unit tests
         run: |
-          PYTHONPATH=src/main/python pytest src/test/python/ut/ -v --tb=short
+          PYTHONPATH=src/main/python pytest src/test/python/ut/ -v --tb=short \
+            --junitxml=reports/unit-tests.xml \
+            --cov=taf --cov-report=xml:reports/coverage.xml --cov-report=term-missing
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/unit-tests.xml
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: reports/coverage.xml
 
   build:
     name: Build Wheel
