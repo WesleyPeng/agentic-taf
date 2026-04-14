@@ -14,8 +14,9 @@
 ## Project
 
 Agentic Test Automation Framework — an extensible, plugin-based, multi-layered
-Python framework for test automation across API, Web UI, WebSocket, CLI, and
-AI/LLM validation. Evolved from uiXautomation (PyXTaf), modernized for Python 3.12+.
+Python framework for test automation across API, Web UI, WebSocket, CLI,
+AI/LLM validation, and chaos engineering. Evolved from uiXautomation (PyXTaf),
+modernized for Python 3.12+.
 
 Part of the Agentic QA Platform (6 repos). Design authority and implementation
 plans live in `agentic-qa-platform`. This repo contains the framework core and
@@ -27,8 +28,8 @@ Language: Python 3.12+
 
 Four-layer plugin architecture (top to bottom):
 
-1. **Test Suites** (`src/test/python/`) — `ut/` (42 unit tests), `bpt/` (BDD/ATDD examples), `suites/` (planned)
-2. **Modeling** (`src/main/python/taf/modeling/`) — Browser, RESTClient, CLIRunner, Page Objects
+1. **Test Suites** (`src/test/python/`) — `ut/` (142 unit tests), `bpt/` (BDD/ATDD examples), `suites/` (planned)
+2. **Modeling** (`src/main/python/taf/modeling/`) — Browser, RESTClient, CLIRunner, WSClient, LLMJudge, ChaosRunner
 3. **Foundation** (`src/main/python/taf/foundation/`) — ServiceLocator, Configuration (YAML), Utils
 4. **Plugins** (`src/main/python/taf/foundation/plugins/`) — Concrete implementations discovered at runtime via ServiceLocator
 
@@ -43,7 +44,8 @@ Plugin interfaces in `taf/foundation/api/plugins/`:
 | `WSPlugin` | `WebSocketPlugin` (optional) | Implemented (T.1.3) |
 | `CLIPlugin` | `ParamikoPlugin` | Implemented |
 | `MobilePlugin` | `AppiumPlugin` | Implemented |
-| `LLMPlugin` | `LLMJudgePlugin` (optional) | Implemented (T.1.3) |
+| `LLMPlugin` | `LLMJudgePlugin` (optional, OpenAI/Anthropic) | Implemented (T.1.3+T.1.4) |
+| `ChaosPlugin` | `K8sChaosPlugin` (optional) | Implemented (T.1.5) |
 
 ## Build & Test
 
@@ -54,7 +56,7 @@ flake8 src/main/python/ src/test/python/ --max-line-length=120
 # Type check
 mypy src/main/python/taf/ --ignore-missing-imports
 
-# Framework unit tests (42 tests, all pass)
+# Framework unit tests (142 tests)
 PYTHONPATH=src/main/python pytest src/test/python/ut/ -v
 ```
 
@@ -64,7 +66,7 @@ PYTHONPATH=src/main/python pytest src/test/python/ut/ -v
 - **Plugins**: One plugin class per file. File named `<name>plugin.py` (e.g., `playwrightplugin.py`).
 - **Plugin interfaces**: Abstract base in `taf/foundation/api/plugins/`. Concrete in `taf/foundation/plugins/<type>/<name>/`.
 - **Modeling**: High-level wrappers in `taf/modeling/<type>/`. Must use ServiceLocator to resolve plugins, never import concrete plugins directly.
-- **Config**: YAML files in `taf/foundation/conf/` (framework). Environment variables override YAML values (`TAF_PLUGIN_<NAME>_<KEY>`).
+- **Config**: YAML files in `taf/foundation/conf/` (framework). Environment variables override YAML values (`TAF_PLUGIN_<NAME>_<KEY>`, `TAF_LLM_PROVIDER`).
 - **Commits**: `<scope>: <description>` — scopes: framework, plugin, modeling, test, ci, docs.
 - **Copyright**: `Copyright (c) 2017-2026 Wesley Peng` — LGPL-3.0 license.
 - **No secrets**: Never hardcode credentials, IPs, or tokens. Use config files or env vars.
@@ -85,10 +87,11 @@ client = ServiceLocator.get_client(RESTPlugin)
 ### Adding a new plugin
 
 1. Create interface in `taf/foundation/api/plugins/<name>plugin.py` (extend `BasePlugin` metaclass)
-2. Create concrete implementation in `taf/foundation/plugins/<type>/<name>/`
-3. Register in `taf/foundation/conf/config.yml`
-4. Add modeling wrapper in `taf/modeling/<type>/` if needed
-5. Write unit test in `src/test/python/ut/`
+2. Create base client in `taf/foundation/api/<type>/client.py`
+3. Create concrete implementation in `taf/foundation/plugins/<type>/<name>/`
+4. Register in `taf/foundation/conf/config.yml`
+5. Add modeling wrapper in `taf/modeling/<type>/` if needed
+6. Write unit test in `src/test/python/ut/`
 
 ## Pitfalls
 
@@ -96,4 +99,6 @@ client = ServiceLocator.get_client(RESTPlugin)
 - **ServiceLocator is a singleton** — plugin resolution happens once per type. Configuration must be set before first access.
 - **config.yml `location` is relative** — plugin paths are relative to `taf/foundation/conf/`. Use `../plugins/...` pattern.
 - **Selenium 4 API** — use `find_elements(By.ID, value)` not deprecated `find_elements_by_id()`. Use `Service` and `Options`, not `executable_path` or `desired_capabilities`.
+- **LLM provider selection** — default is `openai` (OpenAI-compatible). Set `TAF_LLM_PROVIDER=anthropic` or pass `provider='anthropic'` for native Anthropic API.
+- **Optional plugins** — websocket, llm, chaos plugins are `enabled: False` by default. Install the optional dep (`pip install .[chaos]`) and set `enabled: True` or use env var override.
 - **BDD tests use behave, not pytest-bdd** — existing examples in `src/test/python/bpt/bdd/` use behave with Gherkin.

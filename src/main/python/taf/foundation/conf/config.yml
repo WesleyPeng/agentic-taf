@@ -23,3 +23,7 @@ plugins:
         name                : LLMJudgePlugin
         location            : ../plugins/llm/judge
         enabled             : False
+    chaos:
+        name                : K8sChaosPlugin
+        location            : ../plugins/chaos/k8s
+        enabled             : False

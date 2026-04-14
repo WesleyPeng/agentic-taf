@@ -14,25 +14,39 @@ agentic-taf/
 │   │   │   ├── webplugin.py          # WebPlugin — browser automation
 │   │   │   ├── restplugin.py         # RESTPlugin — REST API
 │   │   │   ├── cliplugin.py          # CLIPlugin — SSH/CLI
-│   │   │   └── mobileplugin.py       # MobilePlugin — mobile
+│   │   │   ├── mobileplugin.py       # MobilePlugin — mobile
+│   │   │   ├── wsplugin.py           # WSPlugin — WebSocket
+│   │   │   ├── llmplugin.py          # LLMPlugin — LLM judge
+│   │   │   └── chaosplugin.py        # ChaosPlugin — chaos engineering
 │   │   ├── api/ui/                   # UI element abstractions (controls, patterns, support)
 │   │   ├── api/svc/REST/             # REST client base class
 │   │   ├── api/cli/                  # CLI client base class
+│   │   ├── api/ws/                   # WebSocket client base class
+│   │   ├── api/llm/                  # LLM client base class (provider-agnostic)
+│   │   ├── api/chaos/                # Chaos client base class (Fault, Probe, experiment)
 │   │   ├── plugins/                  # CONCRETE implementations
 │   │   │   ├── web/selenium/         # SeleniumPlugin (Selenium 4, headless)
+│   │   │   ├── web/playwright/       # PlaywrightPlugin (optional)
 │   │   │   ├── svc/requests/         # RequestsPlugin
+│   │   │   ├── svc/httpx/            # HttpxRESTPlugin (optional)
+│   │   │   ├── ws/websocket/         # WebSocketPlugin (optional)
 │   │   │   ├── cli/paramiko/         # ParamikoPlugin
-│   │   │   └── mobile/appium/        # AppiumPlugin
+│   │   │   ├── mobile/appium/        # AppiumPlugin
+│   │   │   ├── llm/judge/            # LLMJudgePlugin (optional, OpenAI/Anthropic)
+│   │   │   └── chaos/k8s/            # K8sChaosPlugin (optional, faults + probes)
 │   │   ├── conf/                     # config.yml + Configuration loader
 │   │   ├── servicelocator.py         # Plugin DI container
 │   │   └── utils/                    # Logger, YAMLData, ConnectionCache, traits
 │   └── modeling/                     # High-level test models
 │       ├── web/                      # Browser + typed web controls
 │       ├── svc/                      # RESTClient
-│       └── cli/                      # CLIRunner
+│       ├── cli/                      # CLIRunner
+│       ├── ws/                       # WSClient (streaming, collect, send_and_receive)
+│       ├── llm/                      # LLMJudge (threshold assertions, provider-agnostic)
+│       └── chaos/                    # ChaosRunner (experiment lifecycle, assert_resilient)
 │
 ├── src/test/python/
-│   ├── ut/                           # Framework unit tests (42 tests)
+│   ├── ut/                           # Framework unit tests (142 tests)
 │   └── bpt/                          # BDD/ATDD examples (Bing, httpbin)
 │
 ├── docs/
@@ -42,36 +56,16 @@ agentic-taf/
 ├── CLAUDE.md                         # AI agent conventions (this project)
 ├── AGENTS.md                         # Reference tables (this file)
 ├── README.md                         # Project overview
-├── architecture-diagram.svg          # Multi-layer architecture (v1.0)
-├── diagram.png                       # Original PyXTaf architecture (preserved)
 ├── pyproject.toml                    # Build config (PEP 517/518, single source of truth)
-├── src/main/python/setup.py          # Legacy setup.py (reads requirements.txt)
-├── src/main/python/setup.cfg         # Legacy metadata
-├── src/main/python/requirements.txt  # Core deps (mirrors pyproject.toml[dependencies])
-├── src/main/python/requirements-dev.txt  # Dev deps (mirrors pyproject.toml[dev])
 ├── .github/workflows/ci.yml         # CI: lint → test → build
 └── LICENSE                           # LGPL-3.0
 ```
 
-### Planned directories (T.1.3+)
+### Planned directories (T.2+)
 
 These will be created as part of future tasks:
 
 ```
-src/main/python/taf/
-│   ├── foundation/api/plugins/
-│   │   ├── wsplugin.py               # T.1.3: WSPlugin — WebSocket
-│   │   └── llmplugin.py              # T.1.3: LLMPlugin — LLM judge
-│   ├── foundation/plugins/
-│   │   ├── web/playwright/           # T.1.3: PlaywrightPlugin (new default)
-│   │   ├── svc/httpx/                # T.1.3: HttpxPlugin (async)
-│   │   ├── ws/                       # T.1.3: WebSocketPlugin
-│   │   └── llm/                      # T.1.3: LLMJudgePlugin
-│   ├── modeling/
-│   │   ├── ws/                       # T.1.4: WSClient
-│   │   └── llm/                      # T.1.4: LLMJudge
-│   └── chaos/                        # T.1.5: K8s chaos module
-│
 src/test/python/
     └── suites/agentic/               # T.2–T.8: Platform test suites
         ├── api/                      # T.2: REST + WebSocket API tests
