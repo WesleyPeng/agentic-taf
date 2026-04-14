@@ -57,6 +57,7 @@ agentic-taf/
 │       ├── bdd/features/             # T.5: BDD scenarios (7 scenarios, behave)
 │       │   └── steps/                # Step definitions
 │       ├── chaos/                    # T.6: Chaos experiments (4 tests, K8sChaosPlugin)
+│       ├── load/                     # T.7: Load & performance tests (4 tests)
 │       ├── config/preprod.yml        # Environment config
 │       ├── conftest.py               # Shared fixtures (ServiceLocator → HttpClient)
 │       └── contract/schemas/         # OpenAPI schema
@@ -72,15 +73,6 @@ agentic-taf/
 ├── pyproject.toml                    # Build config (PEP 517/518, single source of truth)
 ├── .github/workflows/ci.yml         # CI: lint → test (JUnit + coverage) → build
 └── LICENSE                           # LGPL-3.0
-```
-
-### Planned directories (T.7+)
-
-These will be created as part of future tasks:
-
-```
-src/test/python/suites/agentic/
-    └── load/                         # T.7: Performance tests
 ```
 
 ## Implementation Rules

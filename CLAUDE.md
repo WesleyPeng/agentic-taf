@@ -28,7 +28,7 @@ Language: Python 3.12+
 
 Four-layer plugin architecture (top to bottom):
 
-1. **Test Suites** (`src/test/python/`) — `ut/` (142 unit tests), `suites/agentic/` (54 E2E + 7 BDD: 21 API + 8 security + 10 UI + 11 AI + 4 chaos + 7 BDD), `bpt/` (BDD/ATDD examples)
+1. **Test Suites** (`src/test/python/`) — `ut/` (142 unit tests), `suites/agentic/` (58 E2E + 7 BDD: 21 API + 8 security + 10 UI + 11 AI + 4 chaos + 4 load + 7 BDD), `bpt/` (BDD/ATDD examples)
 2. **Modeling** (`src/main/python/taf/modeling/`) — Browser, RESTClient, CLIRunner, WSClient, LLMJudge, ChaosRunner
 3. **Foundation** (`src/main/python/taf/foundation/`) — ServiceLocator, Configuration (YAML), Utils
 4. **Plugins** (`src/main/python/taf/foundation/plugins/`) — Concrete implementations discovered at runtime via ServiceLocator
