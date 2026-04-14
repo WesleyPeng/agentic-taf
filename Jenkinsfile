@@ -1,6 +1,17 @@
 // Agentic-TAF CI/CD Pipeline
-// Stages: Install → Lint → Unit Tests → Build Wheel
-// Future: API Tests → UI Tests → BDD → AI → Chaos → Load → Report
+// Full pipeline: Install → Lint → Unit Tests → Build →
+//   API → Security → UI → BDD → AI → Chaos → Load → Report
+//
+// E2E stages require:
+//   AGENT_BASE_URL      — agent endpoint (via kubectl port-forward)
+//   DASHBOARD_BASE_URL  — dashboard endpoint (via kubectl port-forward)
+//   KUBECONFIG          — path to kubeconfig for chaos tests
+//   TAF_RUN_E2E=true    — master switch to enable E2E stages
+//
+// Reporting stage requires:
+//   SONAR_HOST_URL + SONAR_TOKEN  — SonarQube scanner
+//   OPENSEARCH_URL                — OpenSearch for JUnit results
+//   LANGFUSE_PUBLIC_KEY + LANGFUSE_SECRET_KEY — LangFuse traces
 
 pipeline {
     agent {
@@ -11,12 +22,17 @@ pipeline {
     }
 
     environment {
-        PYTHONPATH = 'src/main/python'
+        PYTHONPATH      = 'src/main/python'
         PIP_NO_CACHE_DIR = '1'
+        TAF_RUN_E2E     = "${params.RUN_E2E ?: env.TAF_RUN_E2E ?: 'false'}"
+    }
+
+    parameters {
+        booleanParam(name: 'RUN_E2E', defaultValue: false, description: 'Run E2E test stages (requires live cluster)')
     }
 
     options {
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 60, unit: 'MINUTES')
         timestamps()
         ansiColor('xterm')
     }
@@ -25,8 +41,10 @@ pipeline {
         stage('Install') {
             steps {
                 sh '''
+                    apt-get update -qq && apt-get install -y -qq curl > /dev/null 2>&1
                     python -m pip install --upgrade pip
                     pip install -r src/main/python/requirements-dev.txt
+                    pip install ".[httpx,websocket,all]" 2>/dev/null || true
                 '''
             }
         }
@@ -49,15 +67,16 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 sh '''
+                    mkdir -p reports
                     pytest src/test/python/ut/ -v --tb=short \
                         --junitxml=reports/unit-tests.xml \
-                        --cov=taf --cov-report=xml:reports/coverage.xml
+                        --cov=taf --cov-report=xml:reports/coverage.xml \
+                        --cov-report=term-missing
                 '''
             }
             post {
                 always {
                     junit 'reports/unit-tests.xml'
-                    archiveArtifacts artifacts: 'reports/*.xml', allowEmptyArchive: true
                 }
             }
         }
@@ -76,60 +95,129 @@ pipeline {
             }
         }
 
-        // --- Future stages (stubs) ---
+        // --- E2E stages (gated by TAF_RUN_E2E) ---
 
         stage('API Tests') {
-            when { expression { return false } }
+            when { expression { return env.TAF_RUN_E2E == 'true' } }
             steps {
-                sh 'pytest src/test/python/suites/agentic/api/ -v --junitxml=reports/api-tests.xml -m e2e'
+                sh '''
+                    pytest src/test/python/suites/agentic/api/ -v \
+                        --junitxml=reports/api-tests.xml -m e2e
+                '''
+            }
+            post {
+                always { junit allowEmptyResults: true, testResults: 'reports/api-tests.xml' }
+            }
+        }
+
+        stage('Security Tests') {
+            when { expression { return env.TAF_RUN_E2E == 'true' } }
+            steps {
+                sh '''
+                    pytest src/test/python/suites/agentic/security/ -v \
+                        --junitxml=reports/security-tests.xml -m e2e
+                '''
+            }
+            post {
+                always { junit allowEmptyResults: true, testResults: 'reports/security-tests.xml' }
             }
         }
 
         stage('UI Tests') {
-            when { expression { return false } }
+            when { expression { return env.TAF_RUN_E2E == 'true' } }
             steps {
-                sh 'pytest src/test/python/suites/agentic/ui/ -v --junitxml=reports/ui-tests.xml -m e2e --headless'
+                sh '''
+                    pip install playwright && playwright install --with-deps chromium
+                    pytest src/test/python/suites/agentic/ui/ -v \
+                        --junitxml=reports/ui-tests.xml -m e2e
+                '''
+            }
+            post {
+                always { junit allowEmptyResults: true, testResults: 'reports/ui-tests.xml' }
             }
         }
 
         stage('BDD') {
-            when { expression { return false } }
+            when { expression { return env.TAF_RUN_E2E == 'true' } }
             steps {
-                sh 'behave src/test/python/suites/agentic/bdd/features/ --junit --junit-directory=reports/'
+                sh '''
+                    behave src/test/python/suites/agentic/bdd/features/ \
+                        --junit --junit-directory=reports/
+                '''
+            }
+            post {
+                always { junit allowEmptyResults: true, testResults: 'reports/TESTS-*.xml' }
             }
         }
 
         stage('AI Tests') {
-            when { expression { return false } }
+            when { expression { return env.TAF_RUN_E2E == 'true' } }
             steps {
-                sh 'pytest src/test/python/suites/agentic/ai/ -v --junitxml=reports/ai-tests.xml -m ai'
+                sh '''
+                    pytest src/test/python/suites/agentic/ai/ -v \
+                        --junitxml=reports/ai-tests.xml -m ai
+                '''
+            }
+            post {
+                always { junit allowEmptyResults: true, testResults: 'reports/ai-tests.xml' }
             }
         }
 
         stage('Chaos') {
-            when { expression { return false } }
+            when { expression { return env.TAF_RUN_E2E == 'true' } }
             steps {
-                sh 'pytest src/test/python/suites/agentic/chaos/ -v --junitxml=reports/chaos-tests.xml -m chaos --timeout=600'
+                sh '''
+                    pytest src/test/python/suites/agentic/chaos/ -v \
+                        --junitxml=reports/chaos-tests.xml -m chaos --timeout=600
+                '''
+            }
+            post {
+                always { junit allowEmptyResults: true, testResults: 'reports/chaos-tests.xml' }
             }
         }
 
         stage('Load') {
-            when { expression { return false } }
+            when { expression { return env.TAF_RUN_E2E == 'true' } }
             steps {
-                sh 'pytest src/test/python/suites/agentic/load/ -v --junitxml=reports/load-tests.xml -m load --timeout=900'
+                sh '''
+                    pytest src/test/python/suites/agentic/load/ -v \
+                        --junitxml=reports/load-tests.xml -m load --timeout=900
+                '''
+            }
+            post {
+                always { junit allowEmptyResults: true, testResults: 'reports/load-tests.xml' }
             }
         }
 
         stage('Report') {
-            when { expression { return false } }
             steps {
-                sh 'echo "TODO: Push results to OpenSearch + SonarQube + LangFuse"'
+                sh '''
+                    echo "=== Test Results ==="
+                    ls -la reports/ || true
+
+                    # Push JUnit results to OpenSearch (if configured)
+                    if [ -n "${OPENSEARCH_URL}" ]; then
+                        python src/test/python/suites/agentic/reporting/push_results.py \
+                            --reports-dir reports/ \
+                            --opensearch-url "${OPENSEARCH_URL}" \
+                            --index test-results || echo "OpenSearch push failed (non-fatal)"
+                    fi
+
+                    # SonarQube scan (if configured)
+                    if [ -n "${SONAR_HOST_URL}" ] && [ -n "${SONAR_TOKEN}" ]; then
+                        pip install pysonar-scanner 2>/dev/null || true
+                        sonar-scanner \
+                            -Dsonar.host.url="${SONAR_HOST_URL}" \
+                            -Dsonar.token="${SONAR_TOKEN}" || echo "SonarQube scan failed (non-fatal)"
+                    fi
+                '''
             }
         }
     }
 
     post {
         always {
+            archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
             cleanWs()
         }
     }

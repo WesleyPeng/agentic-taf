@@ -1,51 +1,44 @@
-version: '3'
+# Agentic-TAF local development services
+#
+# Usage:
+#   docker compose up -d        # Start services
+#   docker compose run taf      # Run unit tests
+#   docker compose run taf src/test/python/suites/agentic/api/ -v -m e2e  # Run API tests
+#   docker compose down          # Stop services
+
 services:
-    chrome:
-        image: selenium/node-chrome-debug:latest
-        volumes:
-            - /dev/shm:/dev/shm
-        depends_on:
-            - hub
-        entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME -port 5500" /opt/bin/entry_point.sh'
-        ports:
-            - "5500:5500"
-        environment:
-            - HUB_PORT_4444_TCP_PORT=4444
-            - HUB_PORT_4444_TCP_ADDR=hub
-        networks:
-            - private
-    firefox:
-        image: selenium/node-firefox-debug:latest
-        volumes:
-            - /dev/shm:/dev/shm
-        depends_on:
-            - hub
-        entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME -port 5501" /opt/bin/entry_point.sh'
-        ports:
-            - "5501:5501"
-        environment:
-            - HUB_PORT_4444_TCP_PORT=4444
-            - HUB_PORT_4444_TCP_ADDR=hub
-        networks:
-            - private
-    hub:
-        image: selenium/hub:latest
-        ports:
-            - "4444:4444"
-        networks:
-            - private
-    agentic-taf:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        volumes:
-            - ./artifacts:/usr/local/artifacts
-        depends_on:
-            - chrome
-            - firefox
-networks:
-    default:
-        external:
-            name: host
-    private:
-        driver: bridge
+  taf:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PYTHONPATH=/app/src/main/python
+      - AGENT_BASE_URL=${AGENT_BASE_URL:-http://host.docker.internal:18000}
+      - DASHBOARD_BASE_URL=${DASHBOARD_BASE_URL:-http://host.docker.internal:18080}
+    volumes:
+      - ./reports:/app/reports
+      - ./src/test/python:/app/src/test/python
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    profiles:
+      - test
+
+  # Selenium Grid (for non-Playwright browser tests)
+  selenium-hub:
+    image: selenium/hub:4.20
+    ports:
+      - "4444:4444"
+    profiles:
+      - selenium
+
+  chrome:
+    image: selenium/node-chrome:4.20
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    shm_size: '2g'
+    profiles:
+      - selenium

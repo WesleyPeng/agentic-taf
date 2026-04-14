@@ -31,18 +31,20 @@
   <rect x="20" y="100" width="860" height="70" rx="10" fill="#E3F2FD" stroke="#2196F3" stroke-width="1.5" filter="url(#shadow)"/>
   <text x="32" y="118" font-size="12" font-weight="bold" fill="#1565C0">Modeling Layer</text>
   <g transform="translate(35, 128)">
-    <rect x="0"   y="0" width="100" height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
-    <text x="50"  y="20" text-anchor="middle" font-size="10">Page Objects</text>
-    <rect x="112" y="0" width="88"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
-    <text x="156" y="20" text-anchor="middle" font-size="10">Browser</text>
-    <rect x="212" y="0" width="96"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
-    <text x="260" y="20" text-anchor="middle" font-size="10">RESTClient</text>
-    <rect x="320" y="0" width="96"  height="30" rx="4" fill="#90CAF9" stroke="#64B5F6"/>
-    <text x="368" y="20" text-anchor="middle" font-size="10">WSClient *</text>
-    <rect x="428" y="0" width="92"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
-    <text x="474" y="20" text-anchor="middle" font-size="10">CLIRunner</text>
-    <rect x="532" y="0" width="100" height="30" rx="4" fill="#90CAF9" stroke="#64B5F6"/>
-    <text x="582" y="20" text-anchor="middle" font-size="10">LLMJudge *</text>
+    <rect x="0"   y="0" width="95"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="48"  y="20" text-anchor="middle" font-size="10">Page Objects</text>
+    <rect x="105" y="0" width="80"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="145" y="20" text-anchor="middle" font-size="10">Browser</text>
+    <rect x="195" y="0" width="88"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="239" y="20" text-anchor="middle" font-size="10">RESTClient</text>
+    <rect x="293" y="0" width="84"  height="30" rx="4" fill="#90CAF9" stroke="#64B5F6"/>
+    <text x="335" y="20" text-anchor="middle" font-size="10">WSClient *</text>
+    <rect x="387" y="0" width="84"  height="30" rx="4" fill="#BBDEFB" stroke="#90CAF9"/>
+    <text x="429" y="20" text-anchor="middle" font-size="10">CLIRunner</text>
+    <rect x="481" y="0" width="92"  height="30" rx="4" fill="#90CAF9" stroke="#64B5F6"/>
+    <text x="527" y="20" text-anchor="middle" font-size="10">LLMJudge *</text>
+    <rect x="583" y="0" width="104" height="30" rx="4" fill="#90CAF9" stroke="#64B5F6"/>
+    <text x="635" y="20" text-anchor="middle" font-size="10">ChaosRunner *</text>
   </g>
 
   <!-- Layer 3: Foundation -->
@@ -55,8 +57,6 @@
     <text x="215" y="20" text-anchor="middle" font-size="10">Configuration (YAML)</text>
     <rect x="310" y="0" width="80"  height="30" rx="4" fill="#FFCDD2" stroke="#EF9A9A"/>
     <text x="350" y="20" text-anchor="middle" font-size="10">Utils</text>
-    <rect x="405" y="0" width="126" height="30" rx="4" fill="#EF9A9A" stroke="#E57373"/>
-    <text x="468" y="20" text-anchor="middle" font-size="10">Chaos Module *</text>
   </g>
 
   <!-- Layer 4: Plugin Interfaces -->
@@ -67,50 +67,54 @@
     <text x="50"  y="19" text-anchor="middle" font-size="10">WebPlugin</text>
     <ellipse cx="158" cy="15" rx="52" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
     <text x="158" y="19" text-anchor="middle" font-size="10">RESTPlugin</text>
-    <ellipse cx="272" cy="15" rx="52" ry="14" fill="#FFCC80" stroke="#FFA726"/>
-    <text x="272" y="19" text-anchor="middle" font-size="10">WSPlugin *</text>
-    <ellipse cx="382" cy="15" rx="48" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
-    <text x="382" y="19" text-anchor="middle" font-size="10">CLIPlugin</text>
-    <ellipse cx="498" cy="15" rx="56" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
-    <text x="498" y="19" text-anchor="middle" font-size="10">MobilePlugin</text>
-    <ellipse cx="614" cy="15" rx="54" ry="14" fill="#FFCC80" stroke="#FFA726"/>
-    <text x="614" y="19" text-anchor="middle" font-size="10">LLMPlugin *</text>
+    <ellipse cx="270" cy="15" rx="48" ry="14" fill="#FFCC80" stroke="#FFA726"/>
+    <text x="270" y="19" text-anchor="middle" font-size="10">WSPlugin *</text>
+    <ellipse cx="374" cy="15" rx="44" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
+    <text x="374" y="19" text-anchor="middle" font-size="10">CLIPlugin</text>
+    <ellipse cx="476" cy="15" rx="48" ry="14" fill="#FFE0B2" stroke="#FFB74D"/>
+    <text x="476" y="19" text-anchor="middle" font-size="10">MobilePlugin</text>
+    <ellipse cx="584" cy="15" rx="48" ry="14" fill="#FFCC80" stroke="#FFA726"/>
+    <text x="584" y="19" text-anchor="middle" font-size="10">LLMPlugin *</text>
+    <ellipse cx="698" cy="15" rx="54" ry="14" fill="#FFCC80" stroke="#FFA726"/>
+    <text x="698" y="19" text-anchor="middle" font-size="10">ChaosPlugin *</text>
   </g>
 
   <!-- Layer 5: Concrete Implementations -->
   <rect x="20" y="370" width="860" height="70" rx="10" fill="#F3E5F5" stroke="#9C27B0" stroke-width="1.5" filter="url(#shadow)"/>
   <text x="32" y="388" font-size="12" font-weight="bold" fill="#6A1B9A">Concrete Implementations</text>
-  <g transform="translate(25, 398)">
-    <rect x="0"   y="0" width="88"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
-    <text x="44"  y="20" text-anchor="middle" font-size="10">Playwright *</text>
-    <rect x="98"  y="0" width="80"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
-    <text x="138" y="20" text-anchor="middle" font-size="10">Selenium</text>
-    <rect x="188" y="0" width="72"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
-    <text x="224" y="20" text-anchor="middle" font-size="10">httpx *</text>
-    <rect x="270" y="0" width="76"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
-    <text x="308" y="20" text-anchor="middle" font-size="10">requests</text>
-    <rect x="356" y="0" width="92"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
-    <text x="402" y="20" text-anchor="middle" font-size="10">WebSocket *</text>
-    <rect x="458" y="0" width="80"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
-    <text x="498" y="20" text-anchor="middle" font-size="10">Paramiko</text>
-    <rect x="548" y="0" width="74"  height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
-    <text x="585" y="20" text-anchor="middle" font-size="10">Appium</text>
-    <rect x="632" y="0" width="96"  height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
-    <text x="680" y="20" text-anchor="middle" font-size="10">LLM Judge *</text>
+  <g transform="translate(20, 398)">
+    <rect x="0"   y="0" width="84" height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="42"  y="20" text-anchor="middle" font-size="9">Playwright *</text>
+    <rect x="90"  y="0" width="76" height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="128" y="20" text-anchor="middle" font-size="9">Selenium</text>
+    <rect x="172" y="0" width="66" height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="205" y="20" text-anchor="middle" font-size="9">httpx *</text>
+    <rect x="244" y="0" width="70" height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="279" y="20" text-anchor="middle" font-size="9">requests</text>
+    <rect x="320" y="0" width="84" height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="362" y="20" text-anchor="middle" font-size="9">WebSocket *</text>
+    <rect x="410" y="0" width="76" height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="448" y="20" text-anchor="middle" font-size="9">Paramiko</text>
+    <rect x="492" y="0" width="66" height="30" rx="4" fill="#F3E5F5" stroke="#CE93D8"/>
+    <text x="525" y="20" text-anchor="middle" font-size="9">Appium</text>
+    <rect x="564" y="0" width="88" height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="608" y="20" text-anchor="middle" font-size="9">LLM Judge *</text>
+    <rect x="658" y="0" width="88" height="30" rx="4" fill="#E1BEE7" stroke="#CE93D8"/>
+    <text x="702" y="20" text-anchor="middle" font-size="9">K8s Chaos *</text>
   </g>
 
   <!-- Down arrows between layers (subtle, centered) -->
   <g stroke="#BDBDBD" stroke-width="1.2" fill="#BDBDBD" opacity="0.6">
-    <!-- Suites → Modeling -->
+    <!-- Suites -> Modeling -->
     <line x1="450" y1="80" x2="450" y2="100"/>
     <polygon points="446,97 450,103 454,97"/>
-    <!-- Modeling → Foundation -->
+    <!-- Modeling -> Foundation -->
     <line x1="450" y1="170" x2="450" y2="190"/>
     <polygon points="446,187 450,193 454,187"/>
-    <!-- Foundation → Interfaces -->
+    <!-- Foundation -> Interfaces -->
     <line x1="450" y1="260" x2="450" y2="280"/>
     <polygon points="446,277 450,283 454,277"/>
-    <!-- Interfaces → Implementations -->
+    <!-- Interfaces -> Implementations -->
     <line x1="450" y1="350" x2="450" y2="370"/>
     <polygon points="446,367 450,373 454,367"/>
   </g>
