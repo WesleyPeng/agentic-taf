@@ -79,6 +79,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
 - `suites/agentic/ai/` — 11 E2E AI tests (LLM-as-judge evaluation, adversarial, fallback; skip if LLM down)
 - `suites/agentic/bdd/` — 7 BDD scenarios (behave: provisioning, chat, LLM routing)
+- `suites/agentic/chaos/` — 4 chaos experiments (K8sChaosPlugin: pod kill, Flux suspend, concurrent)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
@@ -127,6 +128,7 @@ agentic-taf/
 │       │   ├── ai/                         # AI tests (11 tests, LLMJudge)
 │       │   ├── bdd/features/               # BDD scenarios (7 scenarios, behave)
 │       │   │   └── steps/                  # Step definitions
+│       │   ├── chaos/                      # Chaos experiments (4 tests)
 │       │   ├── config/                     # Environment configs
 │       │   └── contract/schemas/           # OpenAPI schema
 │       └── bpt/                            # BDD/ATDD examples
