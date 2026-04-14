@@ -24,6 +24,8 @@ class HttpClient(Client):
             password=None,
             **kwargs
     ):
+        headers = kwargs.pop('headers', None)
+
         super().__init__(
             base_url, port,
             username, password, **kwargs
@@ -36,6 +38,7 @@ class HttpClient(Client):
         self._client = httpx.Client(
             base_url=self.params.get('url', ''),
             auth=auth,
+            headers=headers,
             verify=False,
             timeout=kwargs.get('timeout', 60.0),
         )

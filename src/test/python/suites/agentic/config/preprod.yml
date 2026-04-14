@@ -1,0 +1,18 @@
+# Agentic QA Platform — preprod environment config
+#
+# Override with environment variables:
+#   AGENT_BASE_URL=http://localhost:18000
+
+agent:
+  base_url: "http://localhost:18000"
+  # Access via kubectl port-forward:
+  #   kubectl port-forward -n agentic-platform svc/agentic-qa-agent 18000:8000
+
+auth:
+  default_user: "testuser"
+  default_team: "test-team"
+  roles:
+    viewer: "viewer"
+    developer: "developer"
+    team_lead: "team-lead"
+    ci_service: "ci-service"

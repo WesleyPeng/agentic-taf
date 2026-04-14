@@ -68,8 +68,14 @@ class Configuration:
             plugin_name, attr_name = parts
             if hasattr(self._settings, 'plugins'):
                 plugins = vars(self._settings.plugins)
-                if plugin_name in plugins:
-                    plugin_conf = plugins[plugin_name]
+                # Case-insensitive lookup — config keys may be mixed case (e.g., 'REST')
+                matched_key = None
+                for k in plugins:
+                    if k.lower() == plugin_name:
+                        matched_key = k
+                        break
+                if matched_key:
+                    plugin_conf = plugins[matched_key]
                     parsed_value: str | bool = value
                     if attr_name == 'enabled':
                         parsed_value = value.lower() in ('true', '1', 'yes')
