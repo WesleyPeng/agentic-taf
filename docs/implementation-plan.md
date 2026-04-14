@@ -91,14 +91,19 @@ No standalone `taf/chaos/` module — chaos is a first-class plugin.
 - [x] 33 new unit tests (142 total); K8s tests skipUnless kubernetes installed
 - [x] Validation: flake8 0, mypy 0 (152 files), pytest 142 passed
 
-### T.1.6 — CI Skeleton
+### T.1.6 — CI Skeleton (Done)
 
-| File | Purpose |
-|------|---------|
-| `Jenkinsfile` | lint → unit → api → ui → bdd → ai → chaos → load → report |
-| `.github/workflows/pr-validation.yml` | flake8 + mypy + pytest (unit only) |
+- [x] Enhanced `.github/workflows/ci.yml`:
+  - JUnit XML output (`--junitxml=reports/unit-tests.xml`)
+  - Coverage reporting (`--cov=taf --cov-report=xml:reports/coverage.xml`)
+  - Upload test results + coverage as artifacts (`actions/upload-artifact@v4`)
+  - `pytest-cov` added to `requirements-dev.txt` and `pyproject.toml[dev]`
+- [x] Created `Jenkinsfile` at repo root:
+  - Active stages: Install → Lint (parallel flake8/mypy) → Unit Tests → Build Wheel
+  - Stub stages (disabled): API Tests → UI Tests → BDD → AI → Chaos → Load → Report
+  - JUnit + coverage artifact archival in post steps
 
-**Validation**: PR triggers GitHub Actions; lint + unit tests pass
+**Validation**: PR triggers GitHub Actions; lint + unit tests + coverage pass
 
 ---
 
