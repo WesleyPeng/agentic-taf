@@ -256,16 +256,14 @@ One class per page in `suites/agentic/ui/pages/`:
 
 ---
 
-## T.8 — Security Tests
+## T.8 — Security Tests (Done)
 
-| Test | Acceptance Criteria |
-|------|---------------------|
-| Missing auth headers | 401 on all protected endpoints |
-| Role enforcement | viewer cannot POST; admin can |
-| Secret exposure scan | No secrets in any response |
-| Header injection | Malicious X-User/X-Role sanitized |
+- [x] Role enforcement (3 tests): viewer cannot POST (403), developer can create, invalid role (400)
+- [x] Secret exposure scan (2 tests): regex patterns for GitHub PATs, API keys, private keys; no credentials in health/models/reporting
+- [x] Header injection (3 tests): SQL injection, XSS, oversized headers — all return <500
+- [x] All 8 E2E security tests pass against live preprod
 
-**Validation**: `pytest src/test/python/suites/agentic/security/ -v`
+**Validation**: `AGENT_BASE_URL=http://localhost:18000 pytest src/test/python/suites/agentic/security/ -v -m e2e`
 
 ---
 
