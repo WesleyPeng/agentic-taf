@@ -2,11 +2,17 @@
 #
 # Override with environment variables:
 #   AGENT_BASE_URL=http://localhost:18000
+#   DASHBOARD_BASE_URL=http://localhost:18080
 
 agent:
   base_url: "http://localhost:18000"
   # Access via kubectl port-forward:
   #   kubectl port-forward -n agentic-platform svc/agentic-qa-agent 18000:8000
+
+dashboard:
+  base_url: "http://localhost:18080"
+  # Access via kubectl port-forward:
+  #   kubectl port-forward -n agentic-platform svc/qa-dashboard 18080:80
 
 auth:
   default_user: "testuser"
