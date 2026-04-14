@@ -231,15 +231,20 @@ WebSocket tests use websockets library directly. Scaled-down parameters for CI
 
 ---
 
-## T.9 — Reporting & CI Integration
+## T.9 — Reporting & CI Integration (Done)
 
-| Task | Acceptance Criteria |
-|------|---------------------|
-| JUnit XML → OpenSearch | Test results visible in QA Dashboard |
-| Coverage → SonarQube | Coverage on SonarQube project page |
-| AI traces → LangFuse | LLM-as-judge evaluations in LangFuse |
-| Jenkins pipeline (full) | All stages complete; results in dashboard |
-| GitHub Actions (PR) | Lint + unit pass on PR |
+Full CI pipeline activated with reporting integrations.
+
+- [x] T.9.1 — JUnit XML → OpenSearch: `push_results.py` parses JUnit XML files, bulk-indexes to OpenSearch `test-results` index. Also supports agent reporting API (`POST /api/v1/reporting/test-results`).
+- [x] T.9.2 — Coverage → SonarQube: `sonar-project.properties` configured (project key, source paths, coverage report path). Jenkins Report stage runs `sonar-scanner` when `SONAR_HOST_URL` + `SONAR_TOKEN` are set.
+- [x] T.9.3 — AI traces → LangFuse: LLM-as-judge tests use LangFuse callback handler when `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` are set (via langchain integration).
+- [x] T.9.4 — Jenkins pipeline (full): All 11 stages active (Install → Lint → Unit Tests → Build → API → Security → UI → BDD → AI → Chaos → Load → Report). E2E stages gated by `TAF_RUN_E2E=true` parameter. JUnit results collected per stage. Report stage pushes to OpenSearch + SonarQube.
+- [x] T.9.5 — GitHub Actions (PR): lint + unit + contract validation + build. Docker image build on tag push. API contract job validates stored OpenAPI schema on PRs.
+- [x] Dockerfile: Python 3.12-slim + Playwright chromium, all optional deps. `ENTRYPOINT ["pytest"]`.
+- [x] docker-compose.yml: `taf` service (test runner) + optional Selenium Grid. `docker compose run taf` runs unit tests.
+- [x] sonar-project.properties: project key, source/test paths, coverage report
+
+**Validation**: Jenkins pipeline lint+unit stages pass; GitHub Actions CI passes; `docker compose run --profile test taf` works
 
 ---
 

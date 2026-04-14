@@ -58,6 +58,7 @@ agentic-taf/
 │       │   └── steps/                # Step definitions
 │       ├── chaos/                    # T.6: Chaos experiments (4 tests, K8sChaosPlugin)
 │       ├── load/                     # T.7: Load & performance tests (4 tests)
+│       ├── reporting/                # T.9: CI utility (JUnit to OpenSearch push, not a test suite)
 │       ├── config/preprod.yml        # Environment config
 │       ├── conftest.py               # Shared fixtures (ServiceLocator → HttpClient)
 │       └── contract/schemas/         # OpenAPI schema
@@ -69,9 +70,12 @@ agentic-taf/
 ├── CLAUDE.md                         # AI agent conventions (this project)
 ├── AGENTS.md                         # Reference tables (this file)
 ├── README.md                         # Project overview
-├── Jenkinsfile                       # Jenkins CI pipeline (active + stub stages)
+├── Jenkinsfile                       # Jenkins CI pipeline (E2E stages gated by TAF_RUN_E2E)
 ├── pyproject.toml                    # Build config (PEP 517/518, single source of truth)
-├── .github/workflows/ci.yml         # CI: lint → test (JUnit + coverage) → build
+├── sonar-project.properties          # SonarQube scanner config
+├── Dockerfile                        # Test runner container (Python 3.12 + Playwright)
+├── docker-compose.yml                # Local dev services (taf + optional Selenium Grid)
+├── .github/workflows/ci.yml         # CI: lint → test → contract → build → docker
 └── LICENSE                           # LGPL-3.0
 ```
 

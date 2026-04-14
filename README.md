@@ -20,17 +20,17 @@ Evolved from [PyXTaf](https://pypi.org/project/PyXTaf/) (uiXautomation), moderni
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         Test Suites (pytest / behave)                   │
-│  Unit tests (ut/)  │  BDD/ATDD examples (bpt/)  │  Platform (planned)  │
+│                       Test Suites (pytest / behave)                     │
+│  Unit tests (ut/) │ BDD/ATDD examples (bpt/) │ Platform (agentic/)      │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                          Modeling Layer                                  │
-│  RESTClient │ Browser │ CLIRunner │ WSClient │ LLMJudge │ ChaosRunner  │
+│                            Modeling Layer                               │
+│  RESTClient │ Browser │ CLIRunner │ WSClient │ LLMJudge │ ChaosRunner   │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                           Plugin Layer                                  │
-│  Selenium │ Playwright │ Requests │ httpx │ WS │ Paramiko │ LLM │ K8s │
+│                             Plugin Layer                                │
+│  Selenium │ Playwright │ Requests │ httpx │ WS │ Paramiko │ LLM │Chaos  │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                        Foundation Layer                                  │
-│        ServiceLocator  │  Configuration (YAML)  │  Utils               │
+│                          Foundation Layer                               │
+│        ServiceLocator  │  Configuration (YAML)  │  Utils                │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -78,10 +78,12 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `suites/agentic/security/` — 8 E2E security tests (RBAC, secret exposure, injection)
 - `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
 - `suites/agentic/ai/` — 11 E2E AI tests (LLM-as-judge evaluation, adversarial, fallback; skip if LLM down)
-- `suites/agentic/bdd/` — 7 BDD scenarios (behave: provisioning, chat, LLM routing)
 - `suites/agentic/chaos/` — 4 chaos experiments (K8sChaosPlugin: pod kill, Flux suspend, concurrent)
 - `suites/agentic/load/` — 4 load tests (API throughput, WebSocket scale, provision throughput, chat latency)
+- `suites/agentic/bdd/` — 7 BDD scenarios via behave (provisioning, chat, LLM routing) — separate from pytest E2E count
+- `suites/agentic/reporting/` — CI utility module (JUnit to OpenSearch push, not a test suite)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
+- **Totals**: 142 unit + 58 E2E (pytest) + 7 BDD (behave)
 
 ## Project Structure
 
@@ -91,7 +93,7 @@ agentic-taf/
 │   ├── main/python/taf/                    # Framework core
 │   │   ├── foundation/
 │   │   │   ├── api/
-│   │   │   │   ├── plugins/                # Plugin interfaces (7 types)
+│   │   │   │   ├── plugins/                # Plugin interfaces (8 types)
 │   │   │   │   ├── ui/                     # UI element abstractions
 │   │   │   │   ├── svc/REST/               # REST client base class
 │   │   │   │   ├── cli/                    # CLI client base class
@@ -135,9 +137,12 @@ agentic-taf/
 │       │   └── contract/schemas/           # OpenAPI schema
 │       └── bpt/                            # BDD/ATDD examples
 │
-├── Jenkinsfile                             # Jenkins CI pipeline
+├── Jenkinsfile                             # Jenkins CI pipeline (E2E stages gated by TAF_RUN_E2E)
 ├── pyproject.toml                          # Build config + dependencies
-├── .github/workflows/ci.yml               # CI: lint → test (JUnit + coverage) → build
+├── sonar-project.properties                # SonarQube scanner config
+├── .github/workflows/ci.yml               # CI: lint → test → contract → build → docker
+├── Dockerfile                              # Test runner container (Python 3.12 + Playwright)
+├── docker-compose.yml                      # Local dev services
 └── README.md
 ```
 
