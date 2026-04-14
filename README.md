@@ -78,6 +78,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `suites/agentic/security/` — 8 E2E security tests (RBAC, secret exposure, injection)
 - `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
 - `suites/agentic/ai/` — 11 E2E AI tests (LLM-as-judge evaluation, adversarial, fallback; skip if LLM down)
+- `suites/agentic/bdd/` — 7 BDD scenarios (behave: provisioning, chat, LLM routing)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
@@ -124,6 +125,8 @@ agentic-taf/
 │       │   ├── ui/                         # UI tests (10 tests, Playwright)
 │       │   │   └── pages/                  # Page Objects (engine-agnostic)
 │       │   ├── ai/                         # AI tests (11 tests, LLMJudge)
+│       │   ├── bdd/features/               # BDD scenarios (7 scenarios, behave)
+│       │   │   └── steps/                  # Step definitions
 │       │   ├── config/                     # Environment configs
 │       │   └── contract/schemas/           # OpenAPI schema
 │       └── bpt/                            # BDD/ATDD examples

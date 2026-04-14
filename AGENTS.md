@@ -53,7 +53,9 @@ agentic-taf/
 │       ├── security/                 # T.8: Security tests (8 tests)
 │       ├── ui/                       # T.3: UI tests (10 tests, Playwright)
 │       │   └── pages/                # Page Objects (engine-agnostic)
-│       ├── ai/                       # T.4: AI tests (12 tests, graceful skip)
+│       ├── ai/                       # T.4: AI tests (11 tests, graceful skip)
+│       ├── bdd/features/             # T.5: BDD scenarios (7 scenarios, behave)
+│       │   └── steps/                # Step definitions
 │       ├── config/preprod.yml        # Environment config
 │       ├── conftest.py               # Shared fixtures (ServiceLocator → HttpClient)
 │       └── contract/schemas/         # OpenAPI schema
@@ -71,13 +73,12 @@ agentic-taf/
 └── LICENSE                           # LGPL-3.0
 ```
 
-### Planned directories (T.5+)
+### Planned directories (T.6+)
 
 These will be created as part of future tasks:
 
 ```
 src/test/python/suites/agentic/
-    ├── bdd/                          # T.5: Gherkin + behave
     ├── chaos/                        # T.6: Chaos experiments
     └── load/                         # T.7: Performance tests
 ```

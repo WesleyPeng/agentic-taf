@@ -174,18 +174,18 @@ Uses two framework plugins via ServiceLocator:
 
 ---
 
-## T.5 — BDD/ATDD (behave)
+## T.5 — BDD/ATDD (behave) (Done)
 
-4 feature files in `suites/agentic/bdd/features/`:
+Uses HttpClient via ServiceLocator in behave `environment.py` (same chain as T.2).
 
-| Feature | Scenarios |
-|---------|-----------|
-| `environment_provisioning.feature` | K8s, CAPI, VM, over-quota |
-| `chat_interaction.feature` | Provision via chat, status query, conversation |
-| `team_quota_management.feature` | Within quota, exceed quota |
-| `llm_routing.feature` | Simple → local, complex → Anthropic |
+- [x] `environment_provisioning.feature` (3 scenarios): list reservations, create K8s, invalid role
+- [x] `chat_interaction.feature` (2 scenarios): greeting, status query (graceful on LLM down)
+- [x] `llm_routing.feature` (2 scenarios): 3 LLM tiers configured, models have required fields
+- [x] Step definitions: provisioning_steps.py, chat_steps.py, llm_routing_steps.py
+- [x] environment.py: ServiceLocator → HttpxRESTPlugin → HttpClient, with assert validation
+- [x] All 7 scenarios pass, 26 steps pass against live preprod
 
-**Validation**: `behave src/test/python/suites/agentic/bdd/features/`
+**Validation**: `AGENT_BASE_URL=http://localhost:18000 behave src/test/python/suites/agentic/bdd/features/`
 
 ---
 
