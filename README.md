@@ -80,6 +80,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `suites/agentic/ai/` — 11 E2E AI tests (LLM-as-judge evaluation, adversarial, fallback; skip if LLM down)
 - `suites/agentic/bdd/` — 7 BDD scenarios (behave: provisioning, chat, LLM routing)
 - `suites/agentic/chaos/` — 4 chaos experiments (K8sChaosPlugin: pod kill, Flux suspend, concurrent)
+- `suites/agentic/load/` — 4 load tests (API throughput, WebSocket scale, provision throughput, chat latency)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
@@ -129,6 +130,7 @@ agentic-taf/
 │       │   ├── bdd/features/               # BDD scenarios (7 scenarios, behave)
 │       │   │   └── steps/                  # Step definitions
 │       │   ├── chaos/                      # Chaos experiments (4 tests)
+│       │   ├── load/                       # Load & performance tests (4 tests)
 │       │   ├── config/                     # Environment configs
 │       │   └── contract/schemas/           # OpenAPI schema
 │       └── bpt/                            # BDD/ATDD examples
@@ -216,7 +218,7 @@ test automation framework with Selenium, Appium, Paramiko, and Requests plugins.
 renamed to **Agentic-TAF** and modernized for Python 3.12+ with Selenium 4 support.
 
 New plugin interfaces (Playwright, httpx, WebSocket, LLM-as-judge, K8s Chaos) and platform test suites
-(API, UI, AI, BDD, chaos, security — 54 E2E + 7 BDD) are implemented.
+(API, UI, AI, BDD, chaos, security, load — 58 E2E + 7 BDD) are implemented.
 See [docs/implementation-plan.md](docs/implementation-plan.md) for the full roadmap.
 
 ## License

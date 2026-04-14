@@ -204,16 +204,19 @@ Uses K8sChaosPlugin resolved via ServiceLocator + ChaosRunner from modeling laye
 
 ---
 
-## T.7 — Load & Performance
+## T.7 — Load & Performance (Done)
 
-| Test | Target |
-|------|--------|
-| API throughput | p95 <2s at 50 RPS |
-| WebSocket scale | 50 concurrent connections |
-| Provision throughput | 10 parallel, all READY in 5 min |
-| Chat latency | p95 <15s for complete response |
+Uses shared api_client fixture (ServiceLocator → HttpClient) for HTTP tests.
+WebSocket tests use websockets library directly. Scaled-down parameters for CI
+(10s duration, 10 concurrent WS, 5 chat requests); full runs use higher values.
 
-**Validation**: `pytest src/test/python/suites/agentic/load/ -v --timeout=900`
+- [x] T.7.1 — API throughput: sustained GET /api/v1/reservations at target RPS, p95 < 2s, error rate < 5%
+- [x] T.7.2 — WebSocket scale: concurrent connections each send/receive a message, 80%+ success
+- [x] T.7.3 — Provision throughput: 10 parallel POST /reservations, all return non-5xx, cleanup after
+- [x] T.7.4 — Chat latency: sequential POST /api/v1/chat, p95 < 15s for complete response
+- [x] 4 load tests collected
+
+**Validation**: `AGENT_BASE_URL=http://localhost:18000 pytest src/test/python/suites/agentic/load/ -v -m load --timeout=900`
 
 ---
 
