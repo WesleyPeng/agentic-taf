@@ -56,6 +56,7 @@ agentic-taf/
 │       ├── ai/                       # T.4: AI tests (11 tests, graceful skip)
 │       ├── bdd/features/             # T.5: BDD scenarios (7 scenarios, behave)
 │       │   └── steps/                # Step definitions
+│       ├── chaos/                    # T.6: Chaos experiments (4 tests, K8sChaosPlugin)
 │       ├── config/preprod.yml        # Environment config
 │       ├── conftest.py               # Shared fixtures (ServiceLocator → HttpClient)
 │       └── contract/schemas/         # OpenAPI schema
@@ -73,13 +74,12 @@ agentic-taf/
 └── LICENSE                           # LGPL-3.0
 ```
 
-### Planned directories (T.6+)
+### Planned directories (T.7+)
 
 These will be created as part of future tasks:
 
 ```
 src/test/python/suites/agentic/
-    ├── chaos/                        # T.6: Chaos experiments
     └── load/                         # T.7: Performance tests
 ```
 
