@@ -77,6 +77,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `suites/agentic/api/` — 21 E2E API tests (contract, functional, state machine)
 - `suites/agentic/security/` — 8 E2E security tests (RBAC, secret exposure, injection)
 - `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
+- `suites/agentic/ai/` — 11 E2E AI tests (LLM-as-judge evaluation, adversarial, fallback; skip if LLM down)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
@@ -122,6 +123,7 @@ agentic-taf/
 │       │   ├── security/                   # Security tests (8 tests)
 │       │   ├── ui/                         # UI tests (10 tests, Playwright)
 │       │   │   └── pages/                  # Page Objects (engine-agnostic)
+│       │   ├── ai/                         # AI tests (11 tests, LLMJudge)
 │       │   ├── config/                     # Environment configs
 │       │   └── contract/schemas/           # OpenAPI schema
 │       └── bpt/                            # BDD/ATDD examples
