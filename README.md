@@ -74,7 +74,9 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 
 **Test Suites** (`src/test/python/`)
 - `ut/` — 142 framework unit tests (all pass)
-- `suites/agentic/api/` — 21 E2E API tests against live preprod (contract, functional, state machine)
+- `suites/agentic/api/` — 21 E2E API tests (contract, functional, state machine)
+- `suites/agentic/security/` — 8 E2E security tests (RBAC, secret exposure, injection)
+- `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
 
 ## Project Structure
@@ -117,6 +119,9 @@ agentic-taf/
 │       ├── ut/                             # Framework unit tests (142 tests)
 │       ├── suites/agentic/                 # Platform E2E test suites
 │       │   ├── api/                        # API tests (21 tests)
+│       │   ├── security/                   # Security tests (8 tests)
+│       │   ├── ui/                         # UI tests (10 tests, Playwright)
+│       │   │   └── pages/                  # Page Objects (engine-agnostic)
 │       │   ├── config/                     # Environment configs
 │       │   └── contract/schemas/           # OpenAPI schema
 │       └── bpt/                            # BDD/ATDD examples

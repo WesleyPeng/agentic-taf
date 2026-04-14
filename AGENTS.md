@@ -49,10 +49,13 @@ agentic-taf/
 │   ├── ut/                           # Framework unit tests (142 tests)
 │   ├── bpt/                          # BDD/ATDD examples (Bing, httpbin)
 │   └── suites/agentic/              # Platform E2E test suites
-│       ├── api/                      # T.2: API tests (21 tests, contract + functional + state machine)
-│       ├── config/preprod.yml        # Environment config (agent URL, auth roles)
+│       ├── api/                      # T.2: API tests (21 tests)
+│       ├── security/                 # T.8: Security tests (8 tests)
+│       ├── ui/                       # T.3: UI tests (10 tests, Playwright)
+│       │   └── pages/                # Page Objects (engine-agnostic)
+│       ├── config/preprod.yml        # Environment config
 │       ├── conftest.py               # Shared fixtures (ServiceLocator → HttpClient)
-│       └── contract/schemas/         # OpenAPI schema for contract validation
+│       └── contract/schemas/         # OpenAPI schema
 │
 ├── docs/
 │   ├── architecture.md               # Architecture deep-dive
@@ -67,18 +70,15 @@ agentic-taf/
 └── LICENSE                           # LGPL-3.0
 ```
 
-### Planned directories (T.3+)
+### Planned directories (T.5+)
 
 These will be created as part of future tasks:
 
 ```
 src/test/python/suites/agentic/
-    ├── ui/                           # T.3: Playwright UI tests
-    ├── ai/                           # T.4: LLM-as-judge tests
     ├── bdd/                          # T.5: Gherkin + behave
     ├── chaos/                        # T.6: Chaos experiments
-    ├── load/                         # T.7: Performance tests
-    └── security/                     # T.8: RBAC, auth tests
+    └── load/                         # T.7: Performance tests
 ```
 
 ## Implementation Rules
