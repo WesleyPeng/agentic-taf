@@ -22,14 +22,14 @@ WebSocket streaming, and LLM-as-judge evaluation.
 │  API  │  UI  │  E2E  │  BDD  │  AI  │  Chaos  │  Load  │  Security    │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                          Modeling Layer                                  │
-│  RESTClient  │  WSClient  │  Browser  │  Page Objects  │  LLMJudge     │
+│  RESTClient │ WSClient │ Browser │ Page Objects │ LLMJudge │ ChaosRunner│
 ├─────────────────────────────────────────────────────────────────────────┤
 │                        Foundation Layer                                  │
-│  ServiceLocator  │  Configuration (YAML)  │  Utils  │  Chaos Module    │
+│        ServiceLocator  │  Configuration (YAML)  │  Utils                │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                           Plugin Layer                                  │
 │  HttpxPlugin │ PlaywrightPlugin │ WebSocketPlugin │ ParamikoPlugin │    │
-│  SeleniumPlugin │ RequestsPlugin │ LLMJudgePlugin │ AppiumPlugin   │    │
+│  SeleniumPlugin │ RequestsPlugin │ LLMJudgePlugin │ K8sChaosPlugin │   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -60,6 +60,7 @@ High-level abstractions that compose plugin capabilities into test-friendly APIs
 | `WSClient` (new) | `WSPlugin` | Async WebSocket streaming |
 | `CLIRunner` | `CLIPlugin` | SSH command execution |
 | `LLMJudge` (new) | `LLMPlugin` | Rubric-based LLM response quality scoring |
+| `ChaosRunner` (new) | `ChaosPlugin` | Chaos experiment lifecycle with resilience assertions |
 | `Page Objects` | `Browser` + controls | Per-page abstractions with typed web controls |
 
 Web controls (in `taf/modeling/web/controls/`):
@@ -96,11 +97,6 @@ client = ServiceLocator.get_client(RESTPlugin)
 - `ConnectionCache` — Reusable connection pooling
 - `Serializable` trait — Object serialization support
 
-**Chaos Module** (new, `taf/chaos/`)
-- K8s-native fault injection (pod kill, network partition, resource pressure)
-- Resilience probes (HTTP health, K8s resource, Prometheus query)
-- Experiment orchestrator for structured chaos testing
-
 ### Layer 4: Plugins
 
 Location: `src/main/python/taf/foundation/plugins/` (concrete) and `taf/foundation/api/plugins/` (interfaces)
@@ -118,6 +114,7 @@ The ServiceLocator discovers implementations by scanning the directory specified
 | `CLIPlugin` | `api/plugins/cliplugin.py` | `ParamikoPlugin` | `plugins/cli/paramiko/` |
 | `MobilePlugin` | `api/plugins/mobileplugin.py` | `AppiumPlugin` | `plugins/mobile/appium/` |
 | `LLMPlugin` (new) | `api/plugins/llmplugin.py` | `LLMJudgePlugin` | `plugins/llm/` |
+| `ChaosPlugin` (new) | `api/plugins/chaosplugin.py` | `K8sChaosPlugin` | `plugins/chaos/k8s/` |
 
 **BasePlugin metaclass** (`api/plugins/baseplugin.py`)
 - All plugin interfaces use `BasePlugin` as their metaclass
@@ -154,6 +151,10 @@ plugins:
     mobile:
         name: AppiumPlugin
         location: ../plugins/mobile/appium
+        enabled: false
+    chaos:
+        name: K8sChaosPlugin
+        location: ../plugins/chaos/k8s
         enabled: false
 ```
 
@@ -211,16 +212,17 @@ Rubric dimensions (configurable):
 
 ---
 
-## Chaos Module
+## Chaos Engineering Plugin
 
-The chaos module (`taf/chaos/`) provides K8s-native fault injection without
-external dependencies (no Litmus/ChaosCenter required):
+Chaos engineering follows the same plugin architecture as REST, WebSocket, LLM, etc.
+K8s-native fault injection without external dependencies (no Litmus/ChaosCenter required):
 
-| Component | Purpose |
-|-----------|---------|
-| `k8s_chaos.py` | Pod kill, network partition, resource pressure, DNS failure, Flux suspend, egress block |
-| `experiment_runner.py` | Orchestrates chaos experiments with setup/inject/verify/cleanup lifecycle |
-| `probes.py` | Resilience probes: HTTP health endpoint, K8s resource existence, Prometheus metric check |
+| Layer | Component | Location | Purpose |
+|-------|-----------|----------|---------|
+| Plugin interface | `ChaosPlugin` | `api/plugins/chaosplugin.py` | Abstract contract for chaos operations |
+| Base client | `ChaosClient` | `api/chaos/client.py` | Fault/Probe definitions, experiment lifecycle |
+| Concrete plugin | `K8sChaosPlugin` | `plugins/chaos/k8s/` | Pod kill, network partition, resource pressure, DNS failure, Flux suspend |
+| Modeling | `ChaosRunner` | `modeling/chaos/chaosrunner.py` | `run_experiment()`, `assert_resilient()` with retry/timeout/auto-cleanup |
 
 ---
 
