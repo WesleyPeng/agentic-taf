@@ -16,6 +16,22 @@ from taf.foundation.api.svc.REST import Client
 
 
 class HttpClient(Client):
+    """httpx-backed REST client for the test automation framework.
+
+    TLS verification defaults to ``False`` because Agentic-TAF targets
+    test environments that frequently use self-signed certificates
+    (preprod kubeadm clusters, in-cluster service URLs, lab vCenters).
+    Production-grade callers can override by passing ``verify=`` to the
+    constructor:
+
+        HttpClient(url, verify=True)                  # system trust store
+        HttpClient(url, verify='/path/to/ca.pem')     # custom CA bundle
+        HttpClient(url, verify=False)                 # explicit (default)
+
+    See ``docs/architecture.md`` and the platform's
+    ``docs/07-security-access-control.md`` for guidance on production usage.
+    """
+
     def __init__(
             self,
             base_url,
@@ -25,6 +41,8 @@ class HttpClient(Client):
             **kwargs
     ):
         headers = kwargs.pop('headers', None)
+        # Caller may override TLS verification; preserve test-friendly default.
+        verify = kwargs.pop('verify', False)
 
         super().__init__(
             base_url, port,
@@ -39,7 +57,7 @@ class HttpClient(Client):
             base_url=self.params.get('url', ''),
             auth=auth,
             headers=headers,
-            verify=False,
+            verify=verify,
             timeout=kwargs.get('timeout', 60.0),
         )
 

@@ -168,3 +168,57 @@ class TestLLMClientEnvOverride(TestCase):
         from taf.foundation.plugins.llm.judge.llmclient import LLMClient
         client = LLMClient()
         self.assertEqual(client.provider, 'openai')
+
+
+class TestProviderRegistry(TestCase):
+    """Tests for the OCP-compliant provider factory registry."""
+
+    def test_register_provider_extends_factory(self):
+        """A new provider can be registered without modifying _create_chat_model."""
+        from taf.foundation.plugins.llm.judge import llmclient
+
+        captured: dict = {}
+
+        def stub_builder(model, base_url=None, api_key=None, **kwargs):
+            captured['model'] = model
+            captured['base_url'] = base_url
+            captured['api_key'] = api_key
+            captured['kwargs'] = kwargs
+            return MagicMock(name='StubChat')
+
+        original = llmclient._PROVIDER_REGISTRY.copy()
+        try:
+            llmclient.register_provider('stub-provider', stub_builder)
+            result = llmclient._create_chat_model(
+                provider='stub-provider',
+                model='dummy-model',
+                base_url='http://example.invalid',
+                api_key='secret-key',
+                temperature=0.7,
+            )
+            self.assertIsNotNone(result)
+            self.assertEqual(captured['model'], 'dummy-model')
+            self.assertEqual(captured['base_url'], 'http://example.invalid')
+            self.assertEqual(captured['api_key'], 'secret-key')
+            self.assertEqual(captured['kwargs'].get('temperature'), 0.7)
+        finally:
+            llmclient._PROVIDER_REGISTRY.clear()
+            llmclient._PROVIDER_REGISTRY.update(original)
+
+    def test_unknown_provider_falls_back_to_openai(self):
+        """Unknown provider names route to the OpenAI-compatible builder."""
+        from taf.foundation.plugins.llm.judge import llmclient
+
+        with patch.object(llmclient, '_build_openai') as mock_openai:
+            mock_openai.return_value = MagicMock(name='OpenAIChat')
+            llmclient._create_chat_model(
+                provider='nonexistent',
+                model='gpt-4o-mini',
+            )
+            mock_openai.assert_called_once()
+
+    def test_builtin_providers_registered_at_import(self):
+        """openai and anthropic are registered on module import."""
+        from taf.foundation.plugins.llm.judge import llmclient
+        self.assertIn(LLMBaseClient.PROVIDER_OPENAI, llmclient._PROVIDER_REGISTRY)
+        self.assertIn(LLMBaseClient.PROVIDER_ANTHROPIC, llmclient._PROVIDER_REGISTRY)

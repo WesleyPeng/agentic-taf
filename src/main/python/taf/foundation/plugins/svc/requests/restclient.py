@@ -18,6 +18,22 @@ from taf.foundation.api.svc.REST import Client
 
 
 class RESTClient(Session, Client):  # type: ignore[misc]
+    """requests-backed REST client for the test automation framework.
+
+    TLS verification defaults to ``False`` because Agentic-TAF targets
+    test environments that frequently use self-signed certificates
+    (preprod kubeadm clusters, in-cluster service URLs, lab vCenters).
+    Production-grade callers can override by passing ``verify=`` to the
+    constructor:
+
+        RESTClient(url, verify=True)                # system trust store
+        RESTClient(url, verify='/path/to/ca.pem')   # custom CA bundle
+        RESTClient(url, verify=False)               # explicit (default)
+
+    See ``docs/architecture.md`` and the platform's
+    ``docs/07-security-access-control.md`` for guidance on production usage.
+    """
+
     def __init__(
             self,
             base_url,
@@ -28,18 +44,25 @@ class RESTClient(Session, Client):  # type: ignore[misc]
     ):
         Session.__init__(self)
 
+        # Caller may override TLS verification; preserve test-friendly default.
+        verify = kwargs.pop('verify', False)
+
         Client.__init__(
             self, base_url, port,
             username, password, **kwargs
         )
 
-        self.verify = False
+        self.verify = verify
 
         self._set_auth(
             username, password
         )
 
-        urllib3.disable_warnings()
+        # Only suppress warnings when verification is intentionally
+        # disabled — caller opting in to verification deserves the
+        # default warning behaviour.
+        if verify is False:
+            urllib3.disable_warnings()
 
     def get(self, url, **kwargs):  # type: ignore[override]
         return Session.get(
