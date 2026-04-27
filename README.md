@@ -48,7 +48,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 | `RESTPlugin` | `HttpxRESTPlugin` (optional) | REST API testing (httpx) |
 | `WSPlugin` | `WebSocketPlugin` (optional) | WebSocket streaming (websockets) |
 | `CLIPlugin` | `ParamikoPlugin` | SSH / CLI access |
-| `MobilePlugin` | `AppiumPlugin` | Mobile automation |
+| `MobilePlugin` | `AppiumPlugin` (stub / planned) | Mobile automation — interface defined, concrete plugin not yet implemented |
 | `LLMPlugin` | `LLMJudgePlugin` (optional) | LLM response quality evaluation (OpenAI/Anthropic) |
 | `ChaosPlugin` | `K8sChaosPlugin` (optional) | K8s chaos engineering (pod kill, network partition, Flux suspend) |
 
@@ -73,17 +73,17 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `ChaosRunner` — Chaos experiment lifecycle with `assert_resilient()` retry/timeout
 
 **Test Suites** (`src/test/python/`)
-- `ut/` — 142 framework unit tests (all pass)
+- `ut/` — 271 framework unit tests (all pass)
 - `suites/agentic/api/` — 21 E2E API tests (contract, functional, state machine)
 - `suites/agentic/security/` — 8 E2E security tests (RBAC, secret exposure, injection)
 - `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
 - `suites/agentic/ai/` — 11 E2E AI tests (LLM-as-judge evaluation, adversarial, fallback; skip if LLM down)
 - `suites/agentic/chaos/` — 4 chaos experiments (K8sChaosPlugin: pod kill, Flux suspend, concurrent)
 - `suites/agentic/load/` — 4 load tests (API throughput, WebSocket scale, provision throughput, chat latency)
-- `suites/agentic/bdd/` — 7 BDD scenarios via behave (provisioning, chat, LLM routing) — separate from pytest E2E count
+- `suites/agentic/bdd/` — 10 BDD scenarios via behave across 4 feature files (provisioning, chat, LLM routing, environment lifecycle) — separate from pytest E2E count
 - `suites/agentic/reporting/` — CI utility module (JUnit to OpenSearch push, not a test suite)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
-- **Totals**: 142 unit + 58 E2E (pytest) + 7 BDD (behave)
+- **Totals**: 271 unit + 58 E2E (pytest) + 10 BDD (behave)
 
 ## Project Structure
 
@@ -100,14 +100,14 @@ agentic-taf/
 │   │   │   │   ├── ws/                     # WebSocket client base class
 │   │   │   │   ├── llm/                    # LLM client base class
 │   │   │   │   └── chaos/                  # Chaos client base class
-│   │   │   ├── plugins/                    # Concrete implementations (9 plugins)
+│   │   │   ├── plugins/                    # Concrete implementations (8 implemented + 1 stub)
 │   │   │   │   ├── web/selenium/           # SeleniumPlugin (default)
 │   │   │   │   ├── web/playwright/         # PlaywrightPlugin (optional)
 │   │   │   │   ├── svc/requests/           # RequestsPlugin (default)
 │   │   │   │   ├── svc/httpx/              # HttpxRESTPlugin (optional)
 │   │   │   │   ├── ws/websocket/           # WebSocketPlugin (optional)
 │   │   │   │   ├── cli/paramiko/           # ParamikoPlugin
-│   │   │   │   ├── mobile/appium/          # AppiumPlugin
+│   │   │   │   ├── mobile/appium/          # AppiumPlugin (stub / planned)
 │   │   │   │   ├── llm/judge/              # LLMJudgePlugin (optional)
 │   │   │   │   └── chaos/k8s/              # K8sChaosPlugin (optional)
 │   │   │   ├── conf/                       # YAML config + loader
@@ -122,14 +122,14 @@ agentic-taf/
 │   │       └── chaos/                      # ChaosRunner
 │   │
 │   └── test/python/
-│       ├── ut/                             # Framework unit tests (142 tests)
+│       ├── ut/                             # Framework unit tests (271 tests)
 │       ├── suites/agentic/                 # Platform E2E test suites
 │       │   ├── api/                        # API tests (21 tests)
 │       │   ├── security/                   # Security tests (8 tests)
 │       │   ├── ui/                         # UI tests (10 tests, Playwright)
 │       │   │   └── pages/                  # Page Objects (engine-agnostic)
 │       │   ├── ai/                         # AI tests (11 tests, LLMJudge)
-│       │   ├── bdd/features/               # BDD scenarios (7 scenarios, behave)
+│       │   ├── bdd/features/               # BDD scenarios (10 scenarios across 4 feature files, behave)
 │       │   │   └── steps/                  # Step definitions
 │       │   ├── chaos/                      # Chaos experiments (4 tests)
 │       │   ├── load/                       # Load & performance tests (4 tests)
@@ -223,7 +223,8 @@ test automation framework with Selenium, Appium, Paramiko, and Requests plugins.
 renamed to **Agentic-TAF** and modernized for Python 3.12+ with Selenium 4 support.
 
 New plugin interfaces (Playwright, httpx, WebSocket, LLM-as-judge, K8s Chaos) and platform test suites
-(API, UI, AI, BDD, chaos, security, load — 58 E2E + 7 BDD) are implemented.
+(API, UI, AI, BDD, chaos, security, load — 58 E2E + 10 BDD) are implemented.
+AppiumPlugin is currently a stub (interface defined; concrete plugin planned for a future release).
 See [docs/implementation-plan.md](docs/implementation-plan.md) for the full roadmap.
 
 ## License

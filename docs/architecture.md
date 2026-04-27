@@ -112,7 +112,7 @@ The ServiceLocator discovers implementations by scanning the directory specified
 | | | `RequestsPlugin` | `plugins/svc/requests/` |
 | `WSPlugin` (new) | `api/plugins/wsplugin.py` | `WebSocketPlugin` | `plugins/ws/` |
 | `CLIPlugin` | `api/plugins/cliplugin.py` | `ParamikoPlugin` | `plugins/cli/paramiko/` |
-| `MobilePlugin` | `api/plugins/mobileplugin.py` | `AppiumPlugin` | `plugins/mobile/appium/` |
+| `MobilePlugin` | `api/plugins/mobileplugin.py` | `AppiumPlugin` (stub / planned) | `plugins/mobile/appium/` (interface defined; concrete plugin not yet implemented) |
 | `LLMPlugin` (new) | `api/plugins/llmplugin.py` | `LLMJudgePlugin` | `plugins/llm/` |
 | `ChaosPlugin` (new) | `api/plugins/chaosplugin.py` | `K8sChaosPlugin` | `plugins/chaos/k8s/` |
 
