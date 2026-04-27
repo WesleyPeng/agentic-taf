@@ -73,17 +73,17 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `ChaosRunner` — Chaos experiment lifecycle with `assert_resilient()` retry/timeout
 
 **Test Suites** (`src/test/python/`)
-- `ut/` — 271 framework unit tests (all pass)
+- `ut/` — 274 framework unit tests (all pass)
 - `suites/agentic/api/` — 21 E2E API tests (contract, functional, state machine)
 - `suites/agentic/security/` — 8 E2E security tests (RBAC, secret exposure, injection)
 - `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
-- `suites/agentic/ai/` — 11 E2E AI tests (LLM-as-judge evaluation, adversarial, fallback; skip if LLM down)
+- `suites/agentic/ai/` — 16 E2E AI tests: 11 baseline (`test_ai.py`) + 5 ground-truth & multi-turn (`test_e2e_quality.py`) — LLM-as-judge evaluation, adversarial, fallback; skip if LLM down
 - `suites/agentic/chaos/` — 4 chaos experiments (K8sChaosPlugin: pod kill, Flux suspend, concurrent)
 - `suites/agentic/load/` — 4 load tests (API throughput, WebSocket scale, provision throughput, chat latency)
 - `suites/agentic/bdd/` — 10 BDD scenarios via behave across 4 feature files (provisioning, chat, LLM routing, environment lifecycle) — separate from pytest E2E count
 - `suites/agentic/reporting/` — CI utility module (JUnit to OpenSearch push, not a test suite)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
-- **Totals**: 271 unit + 58 E2E (pytest) + 10 BDD (behave)
+- **Totals**: 274 unit + 63 E2E (pytest) + 10 BDD (behave)
 
 ## Project Structure
 
@@ -122,13 +122,13 @@ agentic-taf/
 │   │       └── chaos/                      # ChaosRunner
 │   │
 │   └── test/python/
-│       ├── ut/                             # Framework unit tests (271 tests)
+│       ├── ut/                             # Framework unit tests (274 tests)
 │       ├── suites/agentic/                 # Platform E2E test suites
 │       │   ├── api/                        # API tests (21 tests)
 │       │   ├── security/                   # Security tests (8 tests)
 │       │   ├── ui/                         # UI tests (10 tests, Playwright)
 │       │   │   └── pages/                  # Page Objects (engine-agnostic)
-│       │   ├── ai/                         # AI tests (11 tests, LLMJudge)
+│       │   ├── ai/                         # AI tests (16 tests: test_ai 11 + test_e2e_quality 5)
 │       │   ├── bdd/features/               # BDD scenarios (10 scenarios across 4 feature files, behave)
 │       │   │   └── steps/                  # Step definitions
 │       │   ├── chaos/                      # Chaos experiments (4 tests)
@@ -223,7 +223,7 @@ test automation framework with Selenium, Appium, Paramiko, and Requests plugins.
 renamed to **Agentic-TAF** and modernized for Python 3.12+ with Selenium 4 support.
 
 New plugin interfaces (Playwright, httpx, WebSocket, LLM-as-judge, K8s Chaos) and platform test suites
-(API, UI, AI, BDD, chaos, security, load — 58 E2E + 10 BDD) are implemented.
+(API, UI, AI, BDD, chaos, security, load — 63 E2E + 10 BDD) are implemented.
 AppiumPlugin is currently a stub (interface defined; concrete plugin planned for a future release).
 See [docs/implementation-plan.md](docs/implementation-plan.md) for the full roadmap.
 

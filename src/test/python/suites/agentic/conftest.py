@@ -15,16 +15,32 @@
 Uses ServiceLocator with config override to resolve HttpClient
 from the httpx plugin — proves the full discovery chain works:
   config.yml + env override → ServiceLocator → HttpxRESTPlugin → HttpClient
+
+Also exposes the LLM judge fixtures here (T.10.2) so non-AI suites
+(chaos, security, BDD) can opt in to quality-based assertions:
+
+- ``llm_judge`` — skips the test if langchain unavailable (AI suite default)
+- ``llm_judge_optional`` — returns ``None`` if unavailable (opt-in pattern
+  for non-AI suites: ``if llm_judge_optional: ...``)
+- ``chat_and_judge`` — composite fixture for the common pattern of sending
+  a chat message then optionally evaluating the response
 """
 
+import importlib.util
 import os
 
 import pytest
 import yaml
 
 from taf.foundation import ServiceLocator
-from taf.foundation.api.plugins import RESTPlugin
+from taf.foundation.api.plugins import LLMPlugin, RESTPlugin
 from taf.foundation.conf.configuration import Configuration
+
+
+_HAS_LANGCHAIN = (
+    importlib.util.find_spec('langchain_openai') is not None
+    or importlib.util.find_spec('langchain_anthropic') is not None
+)
 
 
 _CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'config')
@@ -119,3 +135,124 @@ def auth_headers_for_role(config, role):
         'X-Team': config['auth']['default_team'],
         'X-Role': config['auth']['roles'].get(role, role),
     }
+
+
+# --- LLM Judge fixtures (T.10.2) ---------------------------------------------
+#
+# Two fixtures provide different opt-in semantics so the same plugin can be
+# used by required (AI suite) and optional (chaos/security/BDD) consumers
+# without per-suite reimplementation. This honours SoC: each fixture has a
+# single, documented contract.
+
+
+def _configure_llm_plugin():
+    """Enable LLM plugin via env override, resolve via ServiceLocator.
+
+    Validates the discovery chain:
+        TAF_PLUGIN_LLM_ENABLED=true
+            → Configuration → ServiceLocator → LLMJudgePlugin → LLMClient
+    """
+    os.environ['TAF_PLUGIN_LLM_ENABLED'] = 'true'
+
+    Configuration._instance = None
+    Configuration._settings = None
+    ServiceLocator._plugins.pop(LLMPlugin, None)
+    ServiceLocator._clients.pop(LLMPlugin, None)
+
+    client_cls = ServiceLocator.get_client(LLMPlugin)
+    assert client_cls is not None, 'ServiceLocator failed to resolve LLM plugin'
+
+    from taf.foundation.plugins.llm.judge.llmclient import LLMClient
+    assert client_cls is LLMClient, (
+        f'Expected LLMClient, got {client_cls}. '
+        'ServiceLocator did not resolve to LLM judge plugin.'
+    )
+    return client_cls
+
+
+@pytest.fixture(scope='session')
+def llm_client_cls():
+    """Resolve LLMClient via ServiceLocator with config override.
+
+    Skips the test if langchain is not installed. Suites that want
+    optional usage should depend on ``llm_judge_optional`` instead.
+    """
+    if not _HAS_LANGCHAIN:
+        pytest.skip('langchain not installed')
+    return _configure_llm_plugin()
+
+
+@pytest.fixture(scope='session')
+def llm_judge(llm_client_cls):
+    """Required session-scoped LLMJudge.
+
+    Used by the AI suite — the test is skipped when langchain is absent.
+    For opt-in usage in non-AI suites (chaos, security, BDD), use
+    ``llm_judge_optional`` which returns ``None`` instead of skipping.
+    """
+    from taf.modeling.llm import LLMJudge
+    return LLMJudge()
+
+
+@pytest.fixture(scope='session')
+def llm_judge_optional():
+    """Optional session-scoped LLMJudge — returns ``None`` if unavailable.
+
+    Designed for opt-in usage by non-AI suites:
+
+        def test_recovery_quality(api_client, llm_judge_optional):
+            # ... chaos injection, recovery assertion ...
+            if llm_judge_optional is None:
+                return  # No-op when langchain unavailable
+            llm_judge_optional.assert_quality(...)
+
+    Never raises; returns ``None`` for both "no langchain" and
+    "plugin resolution failed" cases so that suite-level pytest
+    collection is not aborted in environments where the LLM stack
+    is intentionally absent.
+    """
+    if not _HAS_LANGCHAIN:
+        return None
+    try:
+        _configure_llm_plugin()
+        from taf.modeling.llm import LLMJudge
+        return LLMJudge()
+    except Exception:  # pragma: no cover — best-effort opt-in
+        return None
+
+
+@pytest.fixture(scope='session')
+def chat_and_judge(api_client, llm_judge_optional):
+    """Composite fixture: send a chat message and optionally judge the response.
+
+    Returns a callable ``(message, **judge_kwargs) -> (data, scores | None)``.
+    When ``judge_kwargs`` is empty or no judge is available, ``scores`` is
+    ``None`` and the test continues — useful for chaos/security suites that
+    want quality assertions only when the LLM stack is wired up.
+
+    Example::
+
+        def test_health_query(chat_and_judge):
+            data, scores = chat_and_judge(
+                'what is the health status?',
+                rubric=Client.GROUND_TRUTH_RUBRIC,
+                dimension_thresholds={'accuracy': 4.0},
+            )
+            assert data.get('response')
+    """
+    def _do(message, **judge_kwargs):
+        resp = api_client.post('/api/v1/chat', json={'message': message})
+        assert resp.status_code == 200, (
+            f'Chat failed: {resp.status_code} {resp.text}'
+        )
+        data = resp.json()
+        scores = None
+        if llm_judge_optional is not None and judge_kwargs:
+            scores = llm_judge_optional.assert_quality(
+                prompt=message,
+                response=data.get('response', ''),
+                **judge_kwargs,
+            )
+        return data, scores
+
+    return _do

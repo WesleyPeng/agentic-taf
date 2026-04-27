@@ -49,6 +49,7 @@ class LLMJudge(Client):
             overall_threshold: float = 3.5,
             dimension_thresholds: dict[str, float] | None = None,
             fail_any_below: float | None = 2.0,
+            rubric: dict[str, str] | None = None,
     ) -> dict:
         """Evaluate and raise AssertionError if thresholds not met.
 
@@ -59,6 +60,13 @@ class LLMJudge(Client):
             overall_threshold: Minimum overall score (default 3.5)
             dimension_thresholds: Per-dimension minimum scores
             fail_any_below: Fail if ANY dimension scores below this
+            rubric: Optional per-call rubric override. If provided,
+                temporarily swaps `self.rubric` for this evaluation
+                and restores the original afterwards. Useful for
+                domain-specific evaluation (e.g.,
+                `Client.GROUND_TRUTH_RUBRIC`,
+                `Client.DEGRADED_MODE_RUBRIC`,
+                `Client.ADVERSARIAL_RUBRIC`).
 
         Returns:
             dict with dimension scores + 'overall' + 'passed' bool
@@ -66,7 +74,14 @@ class LLMJudge(Client):
         Raises:
             AssertionError with details if thresholds not met
         """
-        scores = self.evaluate(prompt, response, context=context)
+        original_rubric = self.rubric
+        if rubric is not None:
+            self.rubric = rubric
+        try:
+            scores = self.evaluate(prompt, response, context=context)
+        finally:
+            self.rubric = original_rubric
+
         failures: list[str] = []
 
         if scores['overall'] < overall_threshold:
