@@ -31,7 +31,7 @@ agentic-taf/
 │   │   │   ├── svc/httpx/            # HttpxRESTPlugin (optional)
 │   │   │   ├── ws/websocket/         # WebSocketPlugin (optional)
 │   │   │   ├── cli/paramiko/         # ParamikoPlugin
-│   │   │   ├── mobile/appium/        # AppiumPlugin
+│   │   │   ├── mobile/appium/        # AppiumPlugin (stub / planned)
 │   │   │   ├── llm/judge/            # LLMJudgePlugin (optional, OpenAI/Anthropic)
 │   │   │   └── chaos/k8s/            # K8sChaosPlugin (optional, faults + probes)
 │   │   ├── conf/                     # config.yml + Configuration loader
@@ -46,7 +46,7 @@ agentic-taf/
 │       └── chaos/                    # ChaosRunner (experiment lifecycle, assert_resilient)
 │
 ├── src/test/python/
-│   ├── ut/                           # Framework unit tests (142 tests)
+│   ├── ut/                           # Framework unit tests (271 tests)
 │   ├── bpt/                          # BDD/ATDD examples (Bing, httpbin)
 │   └── suites/agentic/              # Platform E2E test suites
 │       ├── api/                      # T.2: API tests (21 tests)
@@ -54,7 +54,7 @@ agentic-taf/
 │       ├── ui/                       # T.3: UI tests (10 tests, Playwright)
 │       │   └── pages/                # Page Objects (engine-agnostic)
 │       ├── ai/                       # T.4: AI tests (11 tests, graceful skip)
-│       ├── bdd/features/             # T.5: BDD scenarios (7 scenarios, behave)
+│       ├── bdd/features/             # T.5: BDD scenarios (10 scenarios across 4 feature files, behave)
 │       │   └── steps/                # Step definitions
 │       ├── chaos/                    # T.6: Chaos experiments (4 tests, K8sChaosPlugin)
 │       ├── load/                     # T.7: Load & performance tests (4 tests)

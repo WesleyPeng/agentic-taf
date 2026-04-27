@@ -28,7 +28,7 @@ Language: Python 3.12+
 
 Four-layer plugin architecture (top to bottom):
 
-1. **Test Suites** (`src/test/python/`) — `ut/` (142 unit tests), `suites/agentic/` (58 E2E + 7 BDD: 21 API + 8 security + 10 UI + 11 AI + 4 chaos + 4 load; 7 BDD via behave), `bpt/` (BDD/ATDD examples). `suites/agentic/reporting/` is a CI utility (JUnit to OpenSearch push), not a test suite.
+1. **Test Suites** (`src/test/python/`) — `ut/` (271 unit tests), `suites/agentic/` (58 E2E + 10 BDD: 21 API + 8 security + 10 UI + 11 AI + 4 chaos + 4 load; 10 BDD across 4 feature files via behave), `bpt/` (BDD/ATDD examples). `suites/agentic/reporting/` is a CI utility (JUnit to OpenSearch push), not a test suite.
 2. **Modeling** (`src/main/python/taf/modeling/`) — Browser, RESTClient, CLIRunner, WSClient, LLMJudge, ChaosRunner
 3. **Foundation** (`src/main/python/taf/foundation/`) — ServiceLocator, Configuration (YAML), Utils
 4. **Plugins** (`src/main/python/taf/foundation/plugins/`) — Concrete implementations discovered at runtime via ServiceLocator
@@ -43,7 +43,7 @@ Plugin interfaces in `taf/foundation/api/plugins/`:
 | `RESTPlugin` | `HttpxRESTPlugin` (optional) | Implemented |
 | `WSPlugin` | `WebSocketPlugin` (optional) | Implemented |
 | `CLIPlugin` | `ParamikoPlugin` | Implemented |
-| `MobilePlugin` | `AppiumPlugin` | Implemented |
+| `MobilePlugin` | `AppiumPlugin` | **Stub / planned** (interface defined; concrete plugin not yet implemented) |
 | `LLMPlugin` | `LLMJudgePlugin` (optional, OpenAI/Anthropic) | Implemented |
 | `ChaosPlugin` | `K8sChaosPlugin` (optional) | Implemented |
 
@@ -56,7 +56,7 @@ flake8 src/ --max-line-length=120
 # Type check
 mypy src/main/python/taf/ --ignore-missing-imports
 
-# Framework unit tests (142 tests)
+# Framework unit tests (271 tests)
 PYTHONPATH=src/main/python pytest src/test/python/ut/ -v
 ```
 
