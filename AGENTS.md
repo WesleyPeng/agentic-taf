@@ -46,14 +46,16 @@ agentic-taf/
 │       └── chaos/                    # ChaosRunner (experiment lifecycle, assert_resilient)
 │
 ├── src/test/python/
-│   ├── ut/                           # Framework unit tests (271 tests)
+│   ├── ut/                           # Framework unit tests (274 tests)
 │   ├── bpt/                          # BDD/ATDD examples (Bing, httpbin)
 │   └── suites/agentic/              # Platform E2E test suites
 │       ├── api/                      # T.2: API tests (21 tests)
 │       ├── security/                 # T.8: Security tests (8 tests)
 │       ├── ui/                       # T.3: UI tests (10 tests, Playwright)
 │       │   └── pages/                # Page Objects (engine-agnostic)
-│       ├── ai/                       # T.4: AI tests (11 tests, graceful skip)
+│       ├── ai/                       # T.4: 11 baseline AI tests + T.10: 5 ground-truth/multi-turn = 16 tests
+│       │   ├── test_ai.py            # T.4 (11 tests, graceful skip)
+│       │   └── test_e2e_quality.py   # T.10 (5 tests, ground-truth + multi-turn)
 │       ├── bdd/features/             # T.5: BDD scenarios (10 scenarios across 4 feature files, behave)
 │       │   └── steps/                # Step definitions
 │       ├── chaos/                    # T.6: Chaos experiments (4 tests, K8sChaosPlugin)

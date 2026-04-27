@@ -28,7 +28,7 @@ Language: Python 3.12+
 
 Four-layer plugin architecture (top to bottom):
 
-1. **Test Suites** (`src/test/python/`) — `ut/` (271 unit tests), `suites/agentic/` (58 E2E + 10 BDD: 21 API + 8 security + 10 UI + 11 AI + 4 chaos + 4 load; 10 BDD across 4 feature files via behave), `bpt/` (BDD/ATDD examples). `suites/agentic/reporting/` is a CI utility (JUnit to OpenSearch push), not a test suite.
+1. **Test Suites** (`src/test/python/`) — `ut/` (274 unit tests), `suites/agentic/` (63 E2E + 10 BDD: 21 API + 8 security + 10 UI + 16 AI (`test_ai` 11 + `test_e2e_quality` 5) + 4 chaos + 4 load; 10 BDD across 4 feature files via behave), `bpt/` (BDD/ATDD examples). `suites/agentic/reporting/` is a CI utility (JUnit to OpenSearch push), not a test suite. The `llm_judge` fixture lives in shared `agentic/conftest.py`; non-AI suites can opt in via `llm_judge_optional` (returns `None` if unavailable) or the `chat_and_judge` composite fixture.
 2. **Modeling** (`src/main/python/taf/modeling/`) — Browser, RESTClient, CLIRunner, WSClient, LLMJudge, ChaosRunner
 3. **Foundation** (`src/main/python/taf/foundation/`) — ServiceLocator, Configuration (YAML), Utils
 4. **Plugins** (`src/main/python/taf/foundation/plugins/`) — Concrete implementations discovered at runtime via ServiceLocator
@@ -56,7 +56,7 @@ flake8 src/ --max-line-length=120
 # Type check
 mypy src/main/python/taf/ --ignore-missing-imports
 
-# Framework unit tests (271 tests)
+# Framework unit tests (274 tests)
 PYTHONPATH=src/main/python pytest src/test/python/ut/ -v
 ```
 

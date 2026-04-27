@@ -249,6 +249,58 @@ Full CI pipeline activated with reporting integrations.
 
 ---
 
+## T.10 — LLM-as-Judge E2E Testing Expansion (Done)
+
+Expands the existing 4-layer LLM-judge stack (T.1.3, T.1.4) and the AI suite
+(T.4) to cover **ground-truth anchored evaluation** — the highest-value
+LLM-judge pattern that uses the platform's deterministic REST APIs as ground
+truth for evaluating chat-agent natural-language responses.
+
+Task ordering (rubrics → fixture promotion → tests → docs) was chosen to
+keep blast radius small at each step; see
+`agentic-qa-platform/.windsurf/plans/phase-9-test-automation-framework.md`
+T.10 for the detailed rationale.
+
+- [x] **T.10.1** — Domain rubrics + per-call override:
+  `Client.GROUND_TRUTH_RUBRIC`, `DEGRADED_MODE_RUBRIC`, `ADVERSARIAL_RUBRIC`
+  class constants on `taf/foundation/api/llm/client.py`. New `rubric`
+  parameter on `LLMJudge.assert_quality()` temporarily swaps `self.rubric`
+  for the call (try/finally restore — safe under exception). 3 new unit
+  tests in `test_modeling_extensions.py` (per-call swap, restoration after
+  exception, constants accessible and distinct).
+- [x] **T.10.2** — Promoted `llm_judge` and `llm_client_cls` fixtures from
+  `ai/conftest.py` to shared `agentic/conftest.py`. Added two new fixtures:
+  - `llm_judge_optional` — returns `None` if langchain unavailable
+    (opt-in pattern for non-AI suites: chaos, security, BDD)
+  - `chat_and_judge` — composite that sends a chat message and optionally
+    judges the response, returning `(data, scores | None)`
+  AI suite preserves skip-on-missing semantics by depending on `llm_judge`
+  (which delegates to `llm_client_cls` which calls `pytest.skip()`).
+  `ai/conftest.py` is now minimal (re-imports from parent).
+- [x] **T.10.3** — New `suites/agentic/ai/test_e2e_quality.py` with two
+  test classes (5 E2E tests total):
+  - `TestGroundTruthAccuracy` (3 tests): health, reservations, LLM models
+    — chat response evaluated against deterministic API ground truth using
+    `GROUND_TRUTH_RUBRIC` and accuracy thresholds (≥3.5–4.0).
+  - `TestMultiTurnCoherence` (2 tests): provision-then-status, team
+    retention — verifies thread-id-based context retention with relevance
+    + accuracy thresholds.
+  Re-uses `_chat()` and `_skip_if_llm_unavailable()` helpers from
+  `test_ai.py`.
+- [x] **T.10.4** — README, CLAUDE.md, AGENTS.md, architecture.md updated
+  to reflect 274 unit tests / 16 AI tests / 63 total E2E and the new
+  shared-fixture pattern.
+
+**Validation**: `flake8 src/ --max-line-length=120` clean; `mypy
+src/main/python/taf/ --ignore-missing-imports` 152 files clean;
+`pytest src/test/python/ut/` — **274 passed**.
+
+**Future work (deferred to follow-up PRs)** — see phase-9 plan F.1-F.4:
+chaos post-recovery quality, security adversarial judge, BDD quality step,
+config + CI marker.
+
+---
+
 ## Implementation Order
 
 | Phase | Tasks | Priority |
@@ -262,5 +314,6 @@ Full CI pipeline activated with reporting integrations.
 | T.6 | Chaos engineering | P1 |
 | T.7 | Load & performance | P2 |
 | T.8 | Security tests | P2 |
+| T.10 | LLM-judge E2E expansion (T.10.1-T.10.4) | P1 |
 
 **Critical path**: T.1 → T.2 → T.4 (framework → API → AI tests)

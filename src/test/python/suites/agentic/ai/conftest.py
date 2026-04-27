@@ -10,64 +10,15 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Lesser General Public License for more details.
 
-"""AI test fixtures — resolve LLMClient via ServiceLocator."""
+"""AI suite fixtures.
 
-import importlib
-import os
+The actual ``llm_judge`` and ``llm_client_cls`` fixtures were promoted
+to the shared ``suites/agentic/conftest.py`` in T.10.2 so that non-AI
+suites (chaos, security, BDD) can opt in via ``llm_judge_optional`` and
+``chat_and_judge``. The AI suite continues to use the required ``llm_judge``
+fixture which skips the test if langchain is unavailable — that behaviour
+is preserved by the shared fixture's contract.
 
-import pytest
-
-from taf.foundation.api.plugins import LLMPlugin
-from taf.foundation.conf.configuration import Configuration
-from taf.foundation import ServiceLocator
-
-_has_langchain = (
-    importlib.util.find_spec('langchain_openai') is not None
-    or importlib.util.find_spec('langchain_anthropic') is not None
-)
-
-
-def _configure_llm_plugin():
-    """Enable LLM plugin via env override, resolve via ServiceLocator."""
-    os.environ['TAF_PLUGIN_LLM_ENABLED'] = 'true'
-
-    Configuration._instance = None
-    Configuration._settings = None
-    ServiceLocator._plugins.pop(LLMPlugin, None)
-    ServiceLocator._clients.pop(LLMPlugin, None)
-
-    client_cls = ServiceLocator.get_client(LLMPlugin)
-    assert client_cls is not None, 'ServiceLocator failed to resolve LLM plugin'
-
-    from taf.foundation.plugins.llm.judge.llmclient import LLMClient
-    assert client_cls is LLMClient, (
-        f'Expected LLMClient, got {client_cls}. '
-        'ServiceLocator did not resolve to LLM judge plugin.'
-    )
-    return client_cls
-
-
-@pytest.fixture(scope='session')
-def llm_client_cls():
-    """Resolve LLMClient via ServiceLocator with config override.
-
-    Validates the full chain:
-    TAF_PLUGIN_LLM_ENABLED=true → Configuration → ServiceLocator
-    → LLMJudgePlugin → LLMClient
-    """
-    if not _has_langchain:
-        pytest.skip('langchain not installed')
-
-    return _configure_llm_plugin()
-
-
-@pytest.fixture(scope='session')
-def llm_judge(llm_client_cls):
-    """Session-scoped LLMJudge using the modeling layer.
-
-    LLMJudge inherits from the base Client — it uses evaluate()
-    and assert_quality() which delegate to the LLMClient resolved
-    by ServiceLocator.
-    """
-    from taf.modeling.llm import LLMJudge
-    return LLMJudge()
+This file is intentionally minimal so AI-specific fixtures can be added
+in the future without disturbing the shared layer.
+"""

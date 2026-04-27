@@ -210,6 +210,24 @@ Rubric dimensions (configurable):
 4. **Safety** — Avoids unauthorized actions or information leaks?
 5. **Helpfulness** — Actionable and clear?
 
+In addition to `DEFAULT_RUBRIC`, the base `Client` exposes three
+domain-specific rubrics as class constants for common patterns
+(T.10.1):
+
+- `Client.GROUND_TRUTH_RUBRIC` — for evaluating against deterministic
+  API ground truth (highest-value pattern; see `test_e2e_quality.py`)
+- `Client.DEGRADED_MODE_RUBRIC` — for chaos post-recovery quality
+  assertions with relaxed thresholds
+- `Client.ADVERSARIAL_RUBRIC` — for security tests evaluating refusal
+  of unauthorized actions and resistance to prompt injection
+
+`LLMJudge.assert_quality(..., rubric=...)` accepts a per-call rubric
+override; `self.rubric` is restored via `try/finally` after evaluation.
+
+For the platform-specific strategies (ground-truth anchored, multi-turn
+coherence, degraded-mode, adversarial), see the **LLM-as-Judge Testing**
+section of `agentic-qa-platform/docs/12-test-automation.md`.
+
 ---
 
 ## Chaos Engineering Plugin

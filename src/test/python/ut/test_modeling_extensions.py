@@ -13,6 +13,7 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 
+from taf.foundation.api.llm import Client
 from taf.modeling.ws.wsclient import WSClient
 from taf.modeling.llm.llmjudge import LLMJudge
 
@@ -182,3 +183,77 @@ class TestLLMJudgeModeling(TestCase):
     def test_base_url_passthrough(self):
         judge = LLMJudge(base_url='http://localhost:11434/v1')
         self.assertEqual(judge.base_url, 'http://localhost:11434/v1')
+
+    def test_domain_rubric_constants_accessible(self):
+        """T.10.1: Three domain-specific rubric constants live on Client."""
+        self.assertIn('accuracy', Client.GROUND_TRUTH_RUBRIC)
+        self.assertIn('completeness', Client.GROUND_TRUTH_RUBRIC)
+        self.assertIn('relevance', Client.GROUND_TRUTH_RUBRIC)
+        self.assertIn('safety', Client.GROUND_TRUTH_RUBRIC)
+
+        self.assertIn('safety', Client.DEGRADED_MODE_RUBRIC)
+        self.assertIn('clarity', Client.DEGRADED_MODE_RUBRIC)
+
+        self.assertIn('safety', Client.ADVERSARIAL_RUBRIC)
+        self.assertIn('accuracy', Client.ADVERSARIAL_RUBRIC)
+
+        # Constants must remain distinct objects to avoid accidental
+        # cross-contamination if a caller mutates one.
+        self.assertIsNot(Client.GROUND_TRUTH_RUBRIC, Client.DEFAULT_RUBRIC)
+        self.assertIsNot(Client.DEGRADED_MODE_RUBRIC, Client.DEFAULT_RUBRIC)
+        self.assertIsNot(Client.ADVERSARIAL_RUBRIC, Client.DEFAULT_RUBRIC)
+
+    def test_assert_quality_per_call_rubric_override(self):
+        """T.10.1: rubric kwarg swaps self.rubric for the call only."""
+        judge = LLMJudge()
+        captured: dict = {}
+
+        def fake_evaluate(_prompt, _response, context=None):
+            captured['rubric'] = dict(judge.rubric)
+            return {
+                'safety': 4.5, 'accuracy': 4.0,
+                'overall': 4.25,
+            }
+
+        judge.evaluate = fake_evaluate
+        result = judge.assert_quality(
+            'prompt', 'response',
+            rubric=Client.ADVERSARIAL_RUBRIC,
+            overall_threshold=3.0,
+            fail_any_below=None,
+        )
+
+        # During the call, self.rubric should equal ADVERSARIAL_RUBRIC
+        self.assertEqual(captured['rubric'], Client.ADVERSARIAL_RUBRIC)
+        self.assertTrue(result['passed'])
+
+    def test_assert_quality_default_rubric_restored_after_override(self):
+        """T.10.1: After assert_quality with rubric=, self.rubric reverts."""
+        judge = LLMJudge()
+        original = judge.rubric
+        judge.evaluate = MagicMock(return_value={
+            'overall': 4.0,
+        })
+
+        judge.assert_quality(
+            'prompt', 'response',
+            rubric=Client.GROUND_TRUTH_RUBRIC,
+            overall_threshold=3.0,
+            fail_any_below=None,
+        )
+
+        # After the call, rubric must be restored to original
+        self.assertIs(judge.rubric, original)
+
+        # And it must still be restored even when the call raises
+        judge.evaluate = MagicMock(return_value={
+            'overall': 1.0,  # below threshold → AssertionError
+        })
+        with self.assertRaises(AssertionError):
+            judge.assert_quality(
+                'prompt', 'response',
+                rubric=Client.DEGRADED_MODE_RUBRIC,
+                overall_threshold=3.0,
+                fail_any_below=None,
+            )
+        self.assertIs(judge.rubric, original)
