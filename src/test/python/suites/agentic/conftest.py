@@ -32,9 +32,9 @@ import os
 import pytest
 import yaml
 
-from taf.foundation import ServiceLocator
 from taf.foundation.api.plugins import LLMPlugin, RESTPlugin
-from taf.foundation.conf.configuration import Configuration
+
+from ._fixtures import ConfigurationFixture
 
 
 _HAS_LANGCHAIN = (
@@ -59,28 +59,21 @@ def _load_config():
 
 
 def _configure_httpx_plugin():
-    """Switch REST plugin to httpx via env overrides, then resolve via ServiceLocator."""
-    os.environ['TAF_PLUGIN_REST_NAME'] = 'HttpxRESTPlugin'
-    os.environ['TAF_PLUGIN_REST_LOCATION'] = '../plugins/svc/httpx'
+    """Switch REST plugin to httpx via env overrides, then resolve via ServiceLocator.
 
-    # Reset singletons so config reload picks up the override
-    Configuration._instance = None
-    Configuration._settings = None
-    ServiceLocator._plugins.pop(RESTPlugin, None)
-    ServiceLocator._clients.pop(RESTPlugin, None)
-
-    # Resolve through ServiceLocator — this proves the chain:
-    # config.yml + env override → ServiceLocator → HttpxRESTPlugin → HttpClient
-    client_cls = ServiceLocator.get_client(RESTPlugin)
-    assert client_cls is not None, 'ServiceLocator failed to resolve REST plugin'
-
+    Uses :class:`ConfigurationFixture` to handle the env-set +
+    singleton-reset + resolve + type-validate sequence.
+    """
     from taf.foundation.plugins.svc.httpx import HttpClient
-    assert client_cls is HttpClient, (
-        f'Expected HttpClient, got {client_cls}. '
-        'ServiceLocator did not resolve to httpx plugin.'
-    )
 
-    return client_cls
+    return ConfigurationFixture.resolve(
+        plugin_interface=RESTPlugin,
+        expected_client_cls=HttpClient,
+        env_overrides={
+            'TAF_PLUGIN_REST_NAME': 'HttpxRESTPlugin',
+            'TAF_PLUGIN_REST_LOCATION': '../plugins/svc/httpx',
+        },
+    )
 
 
 @pytest.fixture(scope='session')
@@ -152,22 +145,13 @@ def _configure_llm_plugin():
         TAF_PLUGIN_LLM_ENABLED=true
             → Configuration → ServiceLocator → LLMJudgePlugin → LLMClient
     """
-    os.environ['TAF_PLUGIN_LLM_ENABLED'] = 'true'
-
-    Configuration._instance = None
-    Configuration._settings = None
-    ServiceLocator._plugins.pop(LLMPlugin, None)
-    ServiceLocator._clients.pop(LLMPlugin, None)
-
-    client_cls = ServiceLocator.get_client(LLMPlugin)
-    assert client_cls is not None, 'ServiceLocator failed to resolve LLM plugin'
-
     from taf.foundation.plugins.llm.judge.llmclient import LLMClient
-    assert client_cls is LLMClient, (
-        f'Expected LLMClient, got {client_cls}. '
-        'ServiceLocator did not resolve to LLM judge plugin.'
+
+    return ConfigurationFixture.resolve(
+        plugin_interface=LLMPlugin,
+        expected_client_cls=LLMClient,
+        env_overrides={'TAF_PLUGIN_LLM_ENABLED': 'true'},
     )
-    return client_cls
 
 
 @pytest.fixture(scope='session')
