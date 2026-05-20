@@ -101,6 +101,8 @@ class TestClientInit(unittest.TestCase):
     def test_abstract_methods_raise(self):
         client = Client("http://example.com")
 
+        # HTTP verbs are intentionally abstract — subclasses MUST
+        # implement them. Calling on the base class is a contract error.
         with self.assertRaises(NotImplementedError):
             client.get("/resource")
 
@@ -116,8 +118,15 @@ class TestClientInit(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             client.patch("/resource")
 
-        with self.assertRaises(NotImplementedError):
-            client.__exit__()
+    def test_context_manager_no_raise(self):
+        # __exit__ must NOT raise — Python's `with` machinery calls it
+        # unconditionally on block exit. The base close() is a no-op so
+        # bare-Client `with` blocks work; subclasses override close() to
+        # release transport resources (httpx.Client.close(), etc.).
+        with Client("http://example.com") as client:
+            self.assertIsNotNone(client.params)
+        # Explicit close() is also safe on the base class.
+        Client("http://example.com").close()
 
 
 if __name__ == '__main__':

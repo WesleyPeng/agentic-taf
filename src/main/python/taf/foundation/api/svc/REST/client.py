@@ -51,9 +51,18 @@ class Client:
         return self
 
     def __exit__(self, *args):
-        raise NotImplementedError(
-            'Close connection'
-        )
+        # Delegate to close() so subclasses release transport resources
+        # (httpx.Client, requests.Session, etc.) via a single hook. The
+        # base implementation of close() is a no-op so a bare Client used
+        # as a context manager doesn't crash — overriding __exit__ to
+        # raise NotImplementedError violated LSP and broke every `with`
+        # block consuming a Client subclass that didn't override __exit__.
+        self.close()
+
+    def close(self) -> None:
+        """Release transport resources. Default is a no-op; subclasses
+        with a live HTTP client (httpx.Client, requests.Session, etc.)
+        should override to call the underlying client's close method."""
 
     def get(
             self,

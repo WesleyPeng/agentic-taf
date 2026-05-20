@@ -63,7 +63,7 @@ class HttpClient(Client):
             timeout=kwargs.get('timeout', 60.0),
         )
 
-    def __exit__(self, *args):
+    def close(self) -> None:
         self._client.close()
 
     def get(self, resource, **kwargs):
