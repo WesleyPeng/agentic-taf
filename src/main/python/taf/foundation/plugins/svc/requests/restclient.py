@@ -44,8 +44,10 @@ class RESTClient(Session, Client):  # type: ignore[misc]
     ):
         Session.__init__(self)
 
-        # Caller may override TLS verification; preserve test-friendly default.
-        verify = kwargs.pop('verify', False)
+        # TLS verification defaults to True (secure). Tests targeting
+        # self-signed endpoints must opt out explicitly via verify=False
+        # or pass a CA bundle path.
+        verify = kwargs.pop('verify', True)
 
         Client.__init__(
             self, base_url, port,

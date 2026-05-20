@@ -41,8 +41,10 @@ class HttpClient(Client):
             **kwargs
     ):
         headers = kwargs.pop('headers', None)
-        # Caller may override TLS verification; preserve test-friendly default.
-        verify = kwargs.pop('verify', False)
+        # TLS verification defaults to True (secure). Tests targeting
+        # self-signed endpoints must opt out explicitly via verify=False
+        # or pass a CA bundle path.
+        verify = kwargs.pop('verify', True)
 
         super().__init__(
             base_url, port,
