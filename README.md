@@ -230,3 +230,7 @@ See [docs/implementation-plan.md](docs/implementation-plan.md) for the full road
 ## License
 
 [GNU Lesser General Public License v3.0 (LGPL-3.0)](LICENSE)
+
+## AI Usage
+
+See [AI_USAGE.md](https://github.com/WesleyPeng/agentic-qa-platform/blob/main/AI_USAGE.md) in the design-authority repo for the AI tools policy that applies to this codebase.
