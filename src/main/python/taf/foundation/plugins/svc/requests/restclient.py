@@ -136,9 +136,7 @@ class RESTClient(RestClientDefaults, Session, Client):  # type: ignore[misc]
     def _get_resource_uri(self, resource: str) -> str:
         from urllib.parse import urljoin
 
-        return urljoin(
-            self.params.get('url'),  # type: ignore[union-attr]
-            resource
-        )
+        base = self.params.get('url') or ''
+        return urljoin(str(base), resource)
 
     # _set_default_timeout inherited from RestClientDefaults mixin.
