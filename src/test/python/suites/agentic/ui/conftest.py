@@ -34,9 +34,8 @@ from taf.foundation.conf.configuration import Configuration  # noqa: E402
 from taf.foundation import ServiceLocator  # noqa: E402
 from taf.foundation.api.plugins import WebPlugin  # noqa: E402
 
-Configuration._instance = None
-Configuration._settings = None
-ServiceLocator._plugins.pop(WebPlugin, None)
+Configuration.reset()
+ServiceLocator.reset(WebPlugin)
 
 import pytest  # noqa: E402
 

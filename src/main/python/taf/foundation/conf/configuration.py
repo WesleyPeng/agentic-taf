@@ -42,6 +42,19 @@ class Configuration:
         assert Configuration._instance is not None
         return Configuration._instance
 
+    @classmethod
+    def reset(cls) -> None:
+        """Clear the singleton so the next ``get_instance()`` rebuilds it.
+
+        Intended for test fixtures that mutate process env vars to
+        exercise different plugin configurations. Previously fixtures
+        reached into ``Configuration._instance`` / ``._settings``
+        directly, which is brittle (private API, no documented
+        contract). Use this classmethod instead.
+        """
+        cls._instance = None
+        cls._settings = None
+
     @property
     def plugins(self) -> Any:
         assert self._settings is not None

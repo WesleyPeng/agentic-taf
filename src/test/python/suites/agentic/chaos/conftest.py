@@ -30,10 +30,8 @@ def _configure_chaos_plugin():
     """Enable chaos plugin via env override, resolve via ServiceLocator."""
     os.environ['TAF_PLUGIN_CHAOS_ENABLED'] = 'true'
 
-    Configuration._instance = None
-    Configuration._settings = None
-    ServiceLocator._plugins.pop(ChaosPlugin, None)
-    ServiceLocator._clients.pop(ChaosPlugin, None)
+    Configuration.reset()
+    ServiceLocator.reset(ChaosPlugin)
 
     client_cls = ServiceLocator.get_client(ChaosPlugin)
     assert client_cls is not None, 'ServiceLocator failed to resolve Chaos plugin'

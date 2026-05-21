@@ -35,6 +35,28 @@ class ServiceLocator:
             )
 
     @classmethod
+    def reset(cls, plugin_interface: type | None = None) -> None:
+        """Clear cached plugin discovery + client instances.
+
+        Args:
+            plugin_interface: If given, evict only this plugin's entries
+                so unrelated plugins keep their cached resolutions.
+                If None, clear the entire cache (full reset).
+
+        Intended for test fixtures that mutate process env vars to
+        exercise different plugin configurations. Previously fixtures
+        reached into ``ServiceLocator._plugins`` / ``._clients``
+        directly, which is brittle (private API, no documented
+        contract). Use this classmethod instead.
+        """
+        if plugin_interface is None:
+            cls._plugins.clear()
+            cls._clients.clear()
+        else:
+            cls._plugins.pop(plugin_interface, None)
+            cls._clients.pop(plugin_interface, None)
+
+    @classmethod
     def get_app_under_test(
             cls,
             plugin=WebPlugin

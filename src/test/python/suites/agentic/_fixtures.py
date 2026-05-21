@@ -20,10 +20,9 @@ ServiceLocator returns for a given plugin interface at fixture time
 the optional LLM judge). Each switch requires invalidating two
 singleton caches before re-resolving:
 
-* ``taf.foundation.conf.configuration.Configuration._instance``
-  and ``._settings`` — the YAML config singleton.
-* ``taf.foundation.servicelocator.ServiceLocator._plugins`` and
-  ``._clients`` — per-plugin discovery caches.
+* ``Configuration.reset()`` — clears the YAML config singleton.
+* ``ServiceLocator.reset(plugin_interface)`` — evicts the per-plugin
+  discovery + client cache (or all caches if called without args).
 
 Without the cache reset the new env-var override is ignored and the
 tests resolve a stale client class. The pattern was duplicated for
@@ -63,10 +62,11 @@ class ConfigurationFixture:
         so that other plugins resolved earlier in the session keep
         their cached client classes.
         """
-        Configuration._instance = None
-        Configuration._settings = None
-        ServiceLocator._plugins.pop(plugin_interface, None)
-        ServiceLocator._clients.pop(plugin_interface, None)
+        # Use the public reset() classmethods rather than reaching into
+        # _instance/_settings/_plugins/_clients directly. Public API
+        # added on both singletons specifically for fixture use.
+        Configuration.reset()
+        ServiceLocator.reset(plugin_interface)
 
     @classmethod
     def resolve(

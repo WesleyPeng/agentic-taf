@@ -26,10 +26,8 @@ def before_all(context):
     os.environ['TAF_PLUGIN_REST_NAME'] = 'HttpxRESTPlugin'
     os.environ['TAF_PLUGIN_REST_LOCATION'] = '../plugins/svc/httpx'
 
-    Configuration._instance = None
-    Configuration._settings = None
-    ServiceLocator._plugins.pop(RESTPlugin, None)
-    ServiceLocator._clients.pop(RESTPlugin, None)
+    Configuration.reset()
+    ServiceLocator.reset(RESTPlugin)
 
     client_cls = ServiceLocator.get_client(RESTPlugin)
     from taf.foundation.plugins.svc.httpx import HttpClient
