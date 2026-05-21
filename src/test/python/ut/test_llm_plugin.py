@@ -224,3 +224,50 @@ class TestProviderRegistry(TestCase):
         from taf.foundation.plugins.llm.judge import llmclient
         self.assertIn(LLMBaseClient.PROVIDER_OPENAI, llmclient._PROVIDER_REGISTRY)
         self.assertIn(LLMBaseClient.PROVIDER_ANTHROPIC, llmclient._PROVIDER_REGISTRY)
+
+
+class TestPromptFormatter(TestCase):
+    """PromptFormatter owns prompt assembly + JSON parsing (SRP split
+    from LLMClient.score). The class is pure / has no LangChain deps,
+    so these tests run unconditionally."""
+
+    def setUp(self):
+        from taf.foundation.plugins.llm.judge.llmclient import PromptFormatter
+        self.fmt = PromptFormatter
+
+    def test_build_judge_prompt_contains_inputs(self):
+        out = self.fmt.build_judge_prompt(
+            prompt='hi', response='hello', dimension='accuracy',
+            description='factual correctness',
+        )
+        self.assertIn('accuracy', out)
+        self.assertIn('factual correctness', out)
+        self.assertIn('User prompt: hi', out)
+        self.assertIn('AI response: hello', out)
+        self.assertNotIn('Ground truth context', out)
+
+    def test_build_judge_prompt_with_context_serialises_json(self):
+        out = self.fmt.build_judge_prompt(
+            prompt='p', response='r', dimension='d', description='desc',
+            context={'k': 'v'},
+        )
+        self.assertIn('Ground truth context', out)
+        self.assertIn('"k": "v"', out)
+
+    def test_parse_score_valid_json(self):
+        self.assertEqual(
+            self.fmt.parse_score('{"score": 4.2, "reason": "ok"}'),
+            4.2,
+        )
+
+    def test_parse_score_malformed_json_returns_fallback(self):
+        self.assertEqual(
+            self.fmt.parse_score('not json at all'),
+            self.fmt.DEFAULT_FALLBACK_SCORE,
+        )
+
+    def test_parse_score_missing_key_returns_fallback(self):
+        self.assertEqual(
+            self.fmt.parse_score('{"reason": "no score field"}'),
+            self.fmt.DEFAULT_FALLBACK_SCORE,
+        )

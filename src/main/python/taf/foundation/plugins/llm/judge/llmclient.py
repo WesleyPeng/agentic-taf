@@ -112,6 +112,52 @@ def _create_chat_model(
     )
 
 
+class PromptFormatter:
+    """Build judge prompts + parse score responses.
+
+    Extracted from :class:`LLMClient` so prompt-string assembly and
+    JSON parsing live in one cohesive class (SRP). ``LLMClient`` now
+    handles model lifecycle + invocation only and delegates the
+    text-massaging concerns here.
+    """
+
+    DEFAULT_FALLBACK_SCORE: float = 3.0
+
+    @staticmethod
+    def build_judge_prompt(
+            prompt: str,
+            response: str,
+            dimension: str,
+            description: str,
+            context: dict | None = None,
+    ) -> str:
+        """Assemble the prompt sent to the judge model."""
+        judge_prompt = (
+            f"Rate the following AI response on '{dimension}' "
+            f"({description}) using a scale of 1.0 to 5.0.\n\n"
+            f"User prompt: {prompt}\n\n"
+            f"AI response: {response}\n"
+        )
+
+        if context:
+            judge_prompt += f"\nGround truth context: {json.dumps(context)}\n"
+
+        judge_prompt += (
+            "\nRespond with ONLY a JSON object: "
+            '{"score": <float>, "reason": "<brief explanation>"}'
+        )
+        return judge_prompt
+
+    @classmethod
+    def parse_score(cls, content: str) -> float:
+        """Parse the JSON score response; fall back to neutral on error."""
+        try:
+            parsed = json.loads(content)
+            return float(parsed['score'])
+        except (json.JSONDecodeError, KeyError, ValueError):
+            return cls.DEFAULT_FALLBACK_SCORE
+
+
 class LLMClient(Client):
     DEFAULT_MODELS = {
         Client.PROVIDER_OPENAI: 'gpt-4o-mini',
@@ -177,26 +223,8 @@ class LLMClient(Client):
         description = self.rubric.get(dimension, dimension)
         context = kwargs.get('context')
 
-        judge_prompt = (
-            f"Rate the following AI response on '{dimension}' "
-            f"({description}) using a scale of 1.0 to 5.0.\n\n"
-            f"User prompt: {prompt}\n\n"
-            f"AI response: {response}\n"
+        judge_prompt = PromptFormatter.build_judge_prompt(
+            prompt, response, dimension, description, context=context,
         )
-
-        if context:
-            judge_prompt += f"\nGround truth context: {json.dumps(context)}\n"
-
-        judge_prompt += (
-            "\nRespond with ONLY a JSON object: "
-            '{"score": <float>, "reason": "<brief explanation>"}'
-        )
-
         result = self._llm.invoke(judge_prompt)
-        content = str(result.content)
-
-        try:
-            parsed = json.loads(content)
-            return float(parsed['score'])
-        except (json.JSONDecodeError, KeyError, ValueError):
-            return 3.0
+        return PromptFormatter.parse_score(str(result.content))
