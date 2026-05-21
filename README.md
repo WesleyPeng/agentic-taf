@@ -229,7 +229,13 @@ See [docs/implementation-plan.md](docs/implementation-plan.md) for the full road
 
 ## License
 
-[GNU Lesser General Public License v3.0 (LGPL-3.0)](LICENSE)
+Licensed under the [Apache License, Version 2.0](LICENSE). See also
+[`NOTICE`](NOTICE) for attribution requirements.
+
+Prior versions of this project were distributed under LGPL-3.0; the
+relicense to Apache-2.0 applies to all source as of this commit. Refer
+to git history for the prior licensing terms if you forked before the
+relicense.
 
 ## AI Usage
 
