@@ -15,9 +15,10 @@
 import httpx
 
 from taf.foundation.api.svc.REST import Client
+from taf.foundation.plugins.svc._defaults import RestClientDefaults
 
 
-class HttpClient(Client):
+class HttpClient(RestClientDefaults, Client):
     """httpx-backed REST client for the test automation framework.
 
     TLS verification defaults to ``False`` because Agentic-TAF targets
@@ -103,7 +104,4 @@ class HttpClient(Client):
             **self._set_default_timeout(**kwargs)
         )
 
-    def _set_default_timeout(self, **kwargs):
-        if 'timeout' not in kwargs:
-            kwargs['timeout'] = self.params.get('timeout', 60)
-        return kwargs
+    # _set_default_timeout inherited from RestClientDefaults mixin.

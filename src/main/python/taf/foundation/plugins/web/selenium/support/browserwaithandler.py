@@ -12,46 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-
-from taf.foundation.api.ui.support import WaitHandler
+from taf.foundation.plugins.web.selenium.support._waitbase import SeleniumWaitHandler
 
 
-class BrowserWaitHandler(WaitHandler):
-    def __init__(
-            self,
-            handler=None,
-            timeout=None,
-            poll_frequency=1.0
-    ):
-        super().__init__(
-            handler, timeout
-        )
+class BrowserWaitHandler(SeleniumWaitHandler):
+    """Waits until ``document.readyState === 'complete'``."""
 
-        self.poll_frequency = poll_frequency or 1.0
+    _SCRIPT = 'return document.readyState=="complete";'
+    _TIMEOUT_MESSAGE = 'Failed to fully load page in {timeout} seconds'
 
     def wait(self, timeout=None):
-        """
-        Waits until the page is fully loaded
-        :param timeout: float in seconds
-        :return:
-        """
-        try:
-            self.timeout = float(timeout or self.timeout)
-            self.poll_frequency = float(self.poll_frequency)
-
-            WebDriverWait(
-                self.handler,
-                self.timeout,
-                self.poll_frequency
-            ).until(
-                lambda driver: driver.execute_script(
-                    'return document.readyState=="complete";'
-                ),
-                'Failed to fully load page in {} seconds'.format(
-                    self.timeout
-                )
-            )
-        except TimeoutException:
-            raise
+        self._wait_for_script(self._SCRIPT, self._TIMEOUT_MESSAGE, timeout)

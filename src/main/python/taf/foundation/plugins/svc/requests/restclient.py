@@ -17,9 +17,10 @@ from requests.auth import HTTPBasicAuth
 from requests.sessions import Session
 
 from taf.foundation.api.svc.REST import Client
+from taf.foundation.plugins.svc._defaults import RestClientDefaults
 
 
-class RESTClient(Session, Client):  # type: ignore[misc]
+class RESTClient(RestClientDefaults, Session, Client):  # type: ignore[misc]
     """requests-backed REST client for the test automation framework.
 
     TLS verification defaults to ``False`` because Agentic-TAF targets
@@ -140,10 +141,4 @@ class RESTClient(Session, Client):  # type: ignore[misc]
             resource
         )
 
-    def _set_default_timeout(self, **kwargs):
-        kwargs.setdefault(
-            'timeout',
-            self.params.get('timeout', 60)  # type: ignore[union-attr]
-        )
-
-        return kwargs
+    # _set_default_timeout inherited from RestClientDefaults mixin.

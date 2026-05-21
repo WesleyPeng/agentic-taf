@@ -12,75 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
-
-from taf.foundation.api.ui.support import WaitHandler
+from taf.foundation.plugins.web.selenium.support._waitbase import SeleniumWaitHandler
 
 
-class ElementWaitHandler(WaitHandler):
-    def __init__(
-            self,
-            handler=None,
-            timeout=None,
-            poll_frequency=1.0
-    ):
-        super().__init__(
-            handler, timeout
-        )
+# Per-framework animation-complete predicates. Keys are the `window.<name>`
+# globals to feature-detect; values are the JS expressions whose truthy
+# return means the framework's in-flight async work is done.
+_ANIMATION_SCRIPTS: dict[str, str] = {
+    'xmlhttp': 'return (window.xmlhttp.readyState==4 && '
+               'window.xmlhttp.status==200);',
+    'jQuery': 'return window.jQuery.active==0;',
+    'Ajax': 'return window.Ajax.activeRequestCount==0;',
+    'dojo': 'return window.dojo.io.XMLHTTPTransport.inFlight.length==0;',
+    'angular': 'return window.angular.element(document.body)'
+               '.injector().get("$http").pendingRequests.length==0;',
+}
 
-        self.poll_frequency = poll_frequency or 1.0
+
+class ElementWaitHandler(SeleniumWaitHandler):
+    """Waits until in-flight async animations complete across known
+    JS frameworks (xmlhttp, jQuery, Ajax, dojo, angular)."""
 
     def wait(self, timeout=None):
-        """
-        Waits until the asynchronous animation complete
-        :param timeout: float in seconds
-        :return:
-        """
         self.timeout = float(timeout or self.timeout)
         self.poll_frequency = float(self.poll_frequency)
-
-        xmlhttp_animation_script = \
-            'return (window.xmlhttp.readyState==4 && ' \
-            'window.xmlhttp.status==200);'
-        jquery_animation_script = 'return window.jQuery.active==0;'
-        ajax_animation_script = 'return window.Ajax.activeRequestCount==0;'
-        dojo_animation_script = \
-            'return window.dojo.io.XMLHTTPTransport.inFlight.length==0;'
-        angular_animation_script = \
-            'return window.angular.element(document.body)' \
-            '.injector().get("$http").pendingRequests.length==0;'
-
-        animation_type_script_pairs = {
-            'xmlhttp': xmlhttp_animation_script,
-            'jQuery': jquery_animation_script,
-            'Ajax': ajax_animation_script,
-            'dojo': dojo_animation_script,
-            'angular': angular_animation_script
-        }
-
-        for animation, script in animation_type_script_pairs.items():
-            ret = self.handler.execute_script(
-                'if (window.{}) return true; else return false;'.format(
-                    animation
-                )
+        for animation, script in _ANIMATION_SCRIPTS.items():
+            present = self.handler.execute_script(
+                'if (window.{}) return true; else return false;'.format(animation)
             )
-
-            ret = ret and ret != 'false'
-
-            if ret:
-                try:
-                    WebDriverWait(
-                        self.handler,
-                        self.timeout,
-                        self.poll_frequency
-                    ).until(
-                        lambda driver: driver.execute_script(script),
-                        'Failed to wait for loading '
-                        '{} element in {} seconds'.format(
-                            animation,
-                            self.timeout
-                        )
-                    )
-                except TimeoutException:
-                    raise
+            if not (present and present != 'false'):
+                continue
+            self._wait_for_script(
+                script,
+                'Failed to wait for loading {} element in {{timeout}} seconds'.format(animation),
+                self.timeout,
+            )

@@ -151,10 +151,5 @@ class UIElement:
         # )
 
     def _sync(self, timeout=30):
-        import time
-
-        _now = time.time()
-        while self.current is None and (
-                timeout > (time.time() - _now)
-        ):
-            time.sleep(1)
+        from taf.foundation.utils.polling import poll_until
+        poll_until(lambda: self.current is not None, timeout=timeout)
