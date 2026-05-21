@@ -238,7 +238,7 @@ Full CI pipeline activated with reporting integrations.
 
 - [x] T.9.1 — JUnit XML → OpenSearch: `push_results.py` parses JUnit XML files, bulk-indexes to OpenSearch `test-results` index. Also supports agent reporting API (`POST /api/v1/reporting/test-results`).
 - [x] T.9.2 — Coverage → SonarQube: `sonar-project.properties` configured (project key, source paths, coverage report path). Jenkins Report stage runs `sonar-scanner` when `SONAR_HOST_URL` + `SONAR_TOKEN` are set.
-- [x] T.9.3 — AI traces → LangFuse: LLM-as-judge tests use LangFuse callback handler when `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` are set (via langchain integration).
+- [x] T.9.3 — AI traces → LangFuse: LLM-as-judge tests use LangFuse callback handler when `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` are set. These are the bare env-var names the upstream `langfuse-python` SDK reads by default — TAF deliberately does NOT use the `AGENT_LANGFUSE_*` prefix that the agent service uses (the agent has its own Pydantic Settings with an `AGENT_` prefix). Both processes write to the same LangFuse server; the prefix difference is by design, not drift.
 - [x] T.9.4 — Jenkins pipeline (full): All 11 stages active (Install → Lint → Unit Tests → Build → API → Security → UI → BDD → AI → Chaos → Load → Report). E2E stages gated by `TAF_RUN_E2E=true` parameter. JUnit results collected per stage. Report stage pushes to OpenSearch + SonarQube.
 - [x] T.9.5 — GitHub Actions (PR): lint + unit + contract validation + build. Docker image build on tag push. API contract job validates stored OpenAPI schema on PRs.
 - [x] Dockerfile: Python 3.12-slim + Playwright chromium, all optional deps. `ENTRYPOINT ["pytest"]`.
