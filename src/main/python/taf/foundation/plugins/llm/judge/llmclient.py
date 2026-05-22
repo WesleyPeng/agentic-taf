@@ -177,15 +177,20 @@ class LLMClient(Client):
             provider
             or os.environ.get('TAF_LLM_PROVIDER', Client.PROVIDER_OPENAI)
         )
-        _model = model or self.DEFAULT_MODELS.get(
+        _model = model or os.environ.get('TAF_LLM_MODEL') or self.DEFAULT_MODELS.get(
             _provider, 'gpt-4o-mini'
         )
+        # Allow env-var fallback so LLMJudge() with no args can self-configure
+        # from the environment (used by the agentic E2E conftest, where the
+        # api_key + base_url come from preprod's tier-2 OpenRouter creds).
+        _base_url = base_url or os.environ.get('TAF_LLM_BASE_URL')
+        _api_key = api_key or os.environ.get('TAF_LLM_API_KEY')
 
         super().__init__(
             _model, rubric,
             provider=_provider,
-            base_url=base_url,
-            api_key=api_key,
+            base_url=_base_url,
+            api_key=_api_key,
             **kwargs
         )
 

@@ -115,10 +115,13 @@ def api_client(rest_client_cls, agent_url, auth_headers):
     Instantiates the client class discovered by ServiceLocator
     (HttpClient from httpx plugin) with the agent URL and auth headers.
     """
+    # 120s rather than 30s — chat endpoints route to OpenRouter free
+    # models in preprod (tier-2 fallback when SSO not provided), which
+    # routinely take 30-60s for non-trivial prompts.
     with rest_client_cls(
         agent_url,
         headers=auth_headers,
-        timeout=30,
+        timeout=120,
     ) as client:
         yield client
 

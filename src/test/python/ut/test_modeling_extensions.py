@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from unittest import TestCase
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from taf.foundation.api.llm import Client
 from taf.modeling.ws.wsclient import WSClient
@@ -109,7 +109,20 @@ class TestWSClientModeling(TestCase):
 
 
 class TestLLMJudgeModeling(TestCase):
-    """Tests for LLMJudge modeling layer enhancements."""
+    """Tests for LLMJudge modeling layer enhancements.
+
+    LLMJudge now extends LLMClient (post-hotfix), which builds a real
+    ChatOpenAI in ``__init__``. Patch ``_create_chat_model`` for every
+    test in this class so construction is hermetic.
+    """
+
+    def setUp(self):
+        self._chat_patcher = patch(
+            'taf.foundation.plugins.llm.judge.llmclient._create_chat_model',
+            return_value=MagicMock(name='ChatModel'),
+        )
+        self._chat_patcher.start()
+        self.addCleanup(self._chat_patcher.stop)
 
     def test_assert_quality_passes(self):
         judge = LLMJudge()

@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from taf.foundation.api.llm import Client
+from taf.foundation.plugins.llm.judge.llmclient import LLMClient
 
 
-class LLMJudge(Client):
+class LLMJudge(LLMClient):
     """High-level LLM-as-judge evaluator with threshold assertions.
 
     Supports both OpenAI-compatible and Anthropic providers::
