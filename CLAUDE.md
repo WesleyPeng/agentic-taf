@@ -66,9 +66,9 @@ PYTHONPATH=src/main/python pytest src/test/python/ut/ -v
 - **Plugins**: One plugin class per file. File named `<name>plugin.py` (e.g., `playwrightplugin.py`).
 - **Plugin interfaces**: Abstract base in `taf/foundation/api/plugins/`. Concrete in `taf/foundation/plugins/<type>/<name>/`.
 - **Modeling**: High-level wrappers in `taf/modeling/<type>/`. Must use ServiceLocator to resolve plugins, never import concrete plugins directly.
-- **Config**: YAML files in `taf/foundation/conf/` (framework). Environment variables override YAML values (`TAF_PLUGIN_<NAME>_<KEY>`, `TAF_LLM_PROVIDER`).
+- **Config**: YAML files in `taf/foundation/conf/` (framework). Environment variables override YAML values (`TAF_PLUGIN_<NAME>_<KEY>`, `TAF_LLM_PROVIDER`, `TAF_LLM_MODEL`, `TAF_LLM_BASE_URL`, `TAF_LLM_API_KEY`).
 - **Commits**: `<scope>: <description>` — scopes: framework, plugin, modeling, test, ci, docs.
-- **Copyright**: `Copyright (c) 2017-2026 Wesley Peng` — LGPL-3.0 license.
+- **Copyright**: `Copyright (c) 2017-2026 Wesley Peng` — Apache-2.0 license (relicensed from LGPL-3.0 in 2026; every file carries an SPDX header).
 - **No secrets**: Never hardcode credentials, IPs, or tokens. Use config files or env vars.
 
 ## Key Patterns
@@ -99,7 +99,9 @@ client = ServiceLocator.get_client(RESTPlugin)
 - **ServiceLocator is a singleton** — plugin resolution happens once per type. Configuration must be set before first access.
 - **config.yml `location` is relative** — plugin paths are relative to `taf/foundation/conf/`. Use `../plugins/...` pattern.
 - **Selenium 4 API** — use `find_elements(By.ID, value)` not deprecated `find_elements_by_id()`. Use `Service` and `Options`, not `executable_path` or `desired_capabilities`.
-- **LLM provider selection** — default is `openai` (OpenAI-compatible). Set `TAF_LLM_PROVIDER=anthropic` or pass `provider='anthropic'` for native Anthropic API.
+- **LLM provider selection** — default is `openai` (OpenAI-compatible). Set `TAF_LLM_PROVIDER=anthropic` or pass `provider='anthropic'` for native Anthropic API. `TAF_LLM_MODEL`, `TAF_LLM_BASE_URL`, `TAF_LLM_API_KEY` fallbacks let `LLMJudge()` with no args self-configure (used by the agentic conftest's session-scoped fixture).
+- **`LLMJudge` must extend `LLMClient`, NOT `Client`** — `Client` is the abstract base where `evaluate()`/`score()` raise `NotImplementedError`. `LLMJudge(LLMClient)` inherits the working implementations + provider registry. The original `LLMJudge(Client)` silently broke at first real use because `Client.evaluate()` raises. Closed in db10c46.
+- **`LLMJudge()` eagerly builds a `ChatOpenAI`** — instantiating bare `LLMJudge()` calls `LLMClient.__init__` which calls `_create_chat_model(...)` and validates the API key. Tests that build `LLMJudge()` must `unittest.mock.patch('taf.foundation.plugins.llm.judge.llmclient._create_chat_model', return_value=MagicMock())` in setUp.
 - **Optional plugins** — websocket, llm, chaos plugins are `enabled: False` by default. Install the optional dep (`pip install .[chaos]`) and set `enabled: True` or use env var override.
 - **Configuration env overrides are case-insensitive** — `TAF_PLUGIN_REST_NAME` matches config key `REST` (uppercase). The lookup normalizes to lowercase.
 - **E2E tests use ServiceLocator** — never import `httpx.Client` or concrete plugins directly. Use `conftest.py` fixtures that resolve via `ServiceLocator.get_client(RESTPlugin)` with env override.

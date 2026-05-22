@@ -78,7 +78,7 @@ agentic-taf/
 ├── Dockerfile                        # Test runner container (Python 3.12 + Playwright)
 ├── docker-compose.yml                # Local dev services (taf + optional Selenium Grid)
 ├── .github/workflows/ci.yml         # CI: lint → test → contract → build → docker
-└── LICENSE                           # LGPL-3.0
+└── LICENSE                           # Apache-2.0 (relicensed from LGPL-3.0 in 2026)
 ```
 
 ## Implementation Rules
@@ -90,4 +90,10 @@ agentic-taf/
 5. **No hardcoded credentials, IPs, or tokens** — use config files or environment variables.
 6. **Preserve existing tests** — never delete or weaken existing test assertions.
 7. **Match existing patterns** — inspect neighboring files before creating new ones.
-8. **Copyright header required** on all new `.py` files: `Copyright (c) 2017-2026 Wesley Peng`, LGPL-3.0.
+8. **SPDX header required** on every new `.py` file:
+   ```python
+   # SPDX-License-Identifier: Apache-2.0
+   # Copyright (c) 2017-2026 Wesley Peng
+   # Licensed under the Apache License, Version 2.0 (the "License");
+   # ...
+   ```
