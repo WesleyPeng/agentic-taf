@@ -43,7 +43,7 @@ class LoginPage:
 
     @property
     def sso_button(self):
-        return self.page.locator('button:has-text("Dell SSO")')
+        return self.page.locator('button:has-text("Enterprise SSO")')
 
     # Role labels in the Ant Design Select dropdown
     ROLE_LABELS = {
