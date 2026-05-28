@@ -50,6 +50,7 @@ def _derive_test_type(source_file: str, suite_name: str, override: str | None) -
             return t
     return 'unit'
 
+
 try:
     import requests
     HAS_REQUESTS = True
