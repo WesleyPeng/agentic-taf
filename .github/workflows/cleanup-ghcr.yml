@@ -1,0 +1,60 @@
+name: GHCR Image Housekeeping
+
+# Weekly sweep + on-demand. Keeps the GHCR package small without
+# operator action. Safety net: keeps the 10 most recent tagged versions
+# AND prunes untagged manifest lists (intermediate/PR builds that no
+# one references). See:
+# https://github.com/actions/delete-package-versions
+#
+# To dry-run, trigger manually with dry-run=true under workflow_dispatch.
+
+on:
+  schedule:
+    # Sundays at 03:29 UTC. Off-hours, off the :00 / :30 minute marks.
+    # Different minute than the agent + dashboard repos.
+    - cron: '29 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'List versions that would be deleted without deleting them'
+        type: boolean
+        default: false
+
+concurrency:
+  group: cleanup-ghcr-${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  PACKAGE_NAME: agentic-taf
+  KEEP_TAGGED: 10
+
+jobs:
+  prune-untagged:
+    name: Prune untagged manifests
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Delete untagged versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ env.PACKAGE_NAME }}
+          package-type: container
+          delete-only-untagged-versions: true
+          min-versions-to-keep: 5
+          dry-run: ${{ inputs.dry-run || false }}
+
+  prune-old-tagged:
+    name: Prune old tagged versions
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Delete old tagged versions (keep last 10)
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ env.PACKAGE_NAME }}
+          package-type: container
+          min-versions-to-keep: ${{ env.KEEP_TAGGED }}
+          ignore-versions: '^(latest|stable|main)$'
+          dry-run: ${{ inputs.dry-run || false }}
