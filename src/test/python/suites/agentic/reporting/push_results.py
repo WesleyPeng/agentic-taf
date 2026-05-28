@@ -28,9 +28,27 @@ and bulk-indexes them into OpenSearch for visualization in the QA Dashboard.
 import argparse
 import datetime
 import json
+import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+# Canonical test-type taxonomy (mirrors agent's TEST_TYPES in
+# src/api/routes/reporting.py). Producers MUST emit one of these as
+# `test_suite` so the Reports drill-down can group by type.
+TEST_TYPES = ('unit', 'integration', 'ui', 'smoke', 'e2e', 'perf', 'chaos')
+
+
+def _derive_test_type(source_file: str, suite_name: str, override: str | None) -> str:
+    """Pick a canonical test type from CLI override, then filename, then suite."""
+    if override:
+        return override
+    haystack = f'{source_file} {suite_name}'.lower()
+    for t in TEST_TYPES:
+        if re.search(rf'\b{t}\b', haystack):
+            return t
+    return 'unit'
 
 try:
     import requests
@@ -39,8 +57,13 @@ except ImportError:
     HAS_REQUESTS = False
 
 
-def parse_junit_xml(xml_path):
-    """Parse a JUnit XML file and return a list of test result dicts."""
+def parse_junit_xml(xml_path, test_type_override: str | None = None):
+    """Parse a JUnit XML file and return a list of test result dicts.
+
+    Enriches each doc with CI correlation fields (repo, pipeline_id,
+    build_number, branch, commit_sha) from the Jenkins env so the
+    Dashboard Reports drill-down can join against test-coverage-*.
+    """
     results = []
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -50,9 +73,24 @@ def parse_junit_xml(xml_path):
     if not suites and root.tag == 'testsuite':
         suites = [root]
 
+    # Jenkins env correlation (no-op outside Jenkins). repo defaults to
+    # the agentic-taf repo when JOB_NAME is unset.
+    job = os.environ.get('JOB_NAME', '') or ''
+    repo = job.split('/')[0] if job else 'agentic-taf'
+    branch = os.environ.get('BRANCH_NAME') or os.environ.get('GIT_BRANCH') or 'main'
+    commit_sha = os.environ.get('GIT_COMMIT', '')
+    pipeline_id = os.environ.get('BUILD_TAG', '')
+    build_number_raw = os.environ.get('BUILD_NUMBER', '0')
+    try:
+        build_number = int(build_number_raw)
+    except ValueError:
+        build_number = 0
+    team = os.environ.get('TEAM', 'platform-team')
+
     for suite in suites:
         suite_name = suite.get('name', 'unknown')
         suite_time = float(suite.get('time', 0))
+        test_type = _derive_test_type(str(xml_path), suite_name, test_type_override)
 
         for tc in suite.findall('testcase'):
             name = tc.get('name', 'unknown')
@@ -72,16 +110,30 @@ def parse_junit_xml(xml_path):
                 message = tc.find('skipped').get('message', '')
 
             results.append({
+                # JUnit-derived fields (kept for backward compatibility)
                 'suite': suite_name,
                 'classname': classname,
                 'name': name,
                 'status': status,
                 'duration_seconds': time_taken,
+                'duration_ms': int(time_taken * 1000),
                 'message': message,
                 'source_file': str(xml_path),
                 'timestamp': datetime.datetime.utcnow().isoformat() + 'Z',
                 'framework': 'agentic-taf',
                 'suite_duration': suite_time,
+                # Canonical fields the agent reads for joining + grouping
+                'test_suite': test_type,        # canonical type taxonomy
+                'test_name': name,              # mirror of `name`
+                'test_type': test_type,         # explicit alias
+                'repo': repo,
+                'branch': branch,
+                'commit_sha': commit_sha,
+                'pipeline_id': pipeline_id,
+                'build_number': build_number,
+                'team': team,
+                'is_flaky': False,
+                'retry_count': 0,
             })
 
     return results
@@ -159,6 +211,13 @@ def main():
     parser.add_argument('--opensearch-url', help='OpenSearch URL (e.g. http://opensearch:9200)')
     parser.add_argument('--agent-url', help='Agent API URL (e.g. http://agent:8000)')
     parser.add_argument('--index', default='test-results', help='OpenSearch index name')
+    parser.add_argument(
+        '--test-type',
+        choices=TEST_TYPES,
+        help='Override the canonical test type. If omitted, derived from the '
+             'XML filename / suite name (regex against the TEST_TYPES list); '
+             'falls back to "unit".',
+    )
     args = parser.parse_args()
 
     reports_dir = Path(args.reports_dir)
@@ -174,7 +233,7 @@ def main():
     all_results = []
     for xml_file in xml_files:
         try:
-            results = parse_junit_xml(xml_file)
+            results = parse_junit_xml(xml_file, test_type_override=args.test_type)
             all_results.extend(results)
             print(f'Parsed {len(results)} results from {xml_file.name}')
         except Exception as exc:
