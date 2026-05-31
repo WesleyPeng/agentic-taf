@@ -7,7 +7,7 @@ name = "Agentic-TAF"
 version = "1.0.0"
 description = "Agentic Test Automation Framework"
 readme = "README.md"
-license = "LGPL-3.0-or-later"
+license = "Apache-2.0"
 requires-python = ">=3.12"
 authors = [
     {name = "Wesley Peng", email = "wesley.peng@live.com"},
