@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 LABEL org.opencontainers.image.source="https://github.com/WesleyPeng/agentic-taf"
 LABEL org.opencontainers.image.description="Agentic-TAF test runner"
-LABEL org.opencontainers.image.licenses="LGPL-3.0"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git curl openssh-client && rm -rf /var/lib/apt/lists/*

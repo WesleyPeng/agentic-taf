@@ -46,7 +46,7 @@ agentic-taf/
 │       └── chaos/                    # ChaosRunner (experiment lifecycle, assert_resilient)
 │
 ├── src/test/python/
-│   ├── ut/                           # Framework unit tests (274 tests)
+│   ├── ut/                           # Framework unit tests (293 tests)
 │   ├── bpt/                          # BDD/ATDD examples (Bing, httpbin)
 │   └── suites/agentic/              # Platform E2E test suites
 │       ├── api/                      # T.2: API tests (21 tests)

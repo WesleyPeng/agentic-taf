@@ -73,7 +73,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `ChaosRunner` — Chaos experiment lifecycle with `assert_resilient()` retry/timeout
 
 **Test Suites** (`src/test/python/`)
-- `ut/` — 274 framework unit tests (all pass)
+- `ut/` — 293 framework unit tests (all pass)
 - `suites/agentic/api/` — 21 E2E API tests (contract, functional, state machine)
 - `suites/agentic/security/` — 8 E2E security tests (RBAC, secret exposure, injection)
 - `suites/agentic/ui/` — 10 E2E UI tests (Playwright, engine-agnostic Page Objects)
@@ -83,7 +83,7 @@ The framework uses a **ServiceLocator** pattern with pluggable backends. Each pl
 - `suites/agentic/bdd/` — 10 BDD scenarios via behave across 4 feature files (provisioning, chat, LLM routing, environment lifecycle) — separate from pytest E2E count
 - `suites/agentic/reporting/` — CI utility module (JUnit to OpenSearch push, not a test suite)
 - `bpt/` — BDD/ATDD examples (Bing search, httpbin API)
-- **Totals**: 274 unit + 63 E2E (pytest) + 10 BDD (behave)
+- **Totals**: 293 unit + 63 E2E (pytest) + 10 BDD (behave)
 
 ## Project Structure
 
@@ -122,7 +122,7 @@ agentic-taf/
 │   │       └── chaos/                      # ChaosRunner
 │   │
 │   └── test/python/
-│       ├── ut/                             # Framework unit tests (274 tests)
+│       ├── ut/                             # Framework unit tests (293 tests)
 │       ├── suites/agentic/                 # Platform E2E test suites
 │       │   ├── api/                        # API tests (21 tests)
 │       │   ├── security/                   # Security tests (8 tests)
